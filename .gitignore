@@ -20,3 +20,6 @@ source/data/
 
 # Template beamer
 slides/template_beamer
+
+# Reference web (local only)
+reference_web/
