@@ -1,0 +1,20 @@
+# Environments
+.venv/
+env/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS Files
+.DS_Store
+
+# Data & Models
+source/data/
+source/models/
+*.log
+
+# Jupyter
+.ipynb_checkpoints/

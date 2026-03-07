@@ -1,0 +1,8 @@
+pycaret
+pandas
+kagglehub
+opendatasets
+nltk
+Sastrawi
+matplotlib
+seaborn
