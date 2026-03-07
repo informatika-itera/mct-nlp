@@ -96,15 +96,16 @@
             animation: fadeInDown 0.8s ease-out;
         }
 
-        header img {
+        header > img {
+            display: block;
+            margin: 0 auto 2.5rem auto;
             width: 120px;
             height: auto;
-            margin-bottom: 2.5rem;
             filter: drop-shadow(0 8px 16px rgba(139, 92, 246, 0.3));
             transition: transform 0.3s ease;
         }
 
-        header img:hover {
+        header > img:hover {
             transform: scale(1.08) rotate(2deg);
         }
 
