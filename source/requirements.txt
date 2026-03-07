@@ -6,3 +6,6 @@ nltk
 Sastrawi
 matplotlib
 seaborn
+ipykernel
+ipywidgets
+
