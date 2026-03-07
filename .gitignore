@@ -13,7 +13,6 @@ __pycache__/
 
 # Data & Models
 source/data/
-source/models/
 *.log
 
 # Jupyter
