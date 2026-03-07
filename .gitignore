@@ -17,3 +17,6 @@ source/data/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Template beamer
+slides/template_beamer
