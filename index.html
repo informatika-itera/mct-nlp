@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pemrosesan Bahasa Alami - SD25-32202 | ITERA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --tag-bg: #eff6ff;
+            --tag-color: #1d4ed8;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --disclaimer-bg: #fffbeb;
+            --disclaimer-border: #f59e0b;
+            --disclaimer-text: #b45309;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --primary-color: #60a5fa;
+            --primary-hover: #93c5fd;
+            --tag-bg: #1e3a8a;
+            --tag-color: #bfdbfe;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+            --disclaimer-bg: #422006;
+            --disclaimer-border: #d97706;
+            --disclaimer-text: #fde68a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            flex-grow: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header img {
+            width: 150px;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+
+        header img:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .badges img {
+            height: 24px;
+            border-radius: 4px;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        section:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background-color: var(--tag-bg);
+            color: var(--tag-color);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            flex-grow: 1;
+        }
+
+        .card-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .btn:hover:not(.disabled) {
+            background: var(--bg-color);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn.primary {
+            background: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .btn.primary:hover:not(.disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .disclaimer {
+            background-color: var(--disclaimer-bg);
+            border-left: 4px solid var(--disclaimer-border);
+            padding: 1rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .disclaimer h4 {
+            color: var(--disclaimer-text);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .disclaimer p {
+            color: var(--disclaimer-text);
+            opacity: 0.9;
+            margin-bottom: 0;
+            font-size: 0.95rem;
+        }
+
+        ul {
+            margin-left: 1.5rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .featured-pdf {
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            display: none;
+            background: var(--card-bg);
+        }
+
+        .featured-pdf.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pdf-header {
+            padding: 1rem 1.5rem;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pdf-header h3 {
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            display: block;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            section { padding: 1.5rem; }
+            .grid-cards { grid-template-columns: 1fr; }
+            iframe { height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <img src="slides/logos/Logo.png" alt="Logo NLP" onerror="this.src='https://raw.githubusercontent.com/informatika-itera/mct-mlp/main/slides/logos/Logo.png'; this.onerror=null;">
+            <h1>Pemrosesan Bahasa Alami (NLP)</h1>
+            <div class="subtitle">SD25-32202 - Institut Teknologi Sumatera</div>
+            
+            <div class="badges">
+                <img src="https://img.shields.io/badge/python-3.x-blue.svg?logo=python" alt="Python">
+                <img src="https://img.shields.io/badge/Jupyter-F37626.svg?logo=Jupyter&logoColor=white" alt="Jupyter">
+                <img src="https://img.shields.io/badge/PyCaret-AutoML-yellow" alt="PyCaret">
+                <img src="https://img.shields.io/badge/AI-NLP-ff69b4.svg" alt="NLP">
+                <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+            </div>
+        </header>
+
+        <section>
+            <h2>📖 Tentang Mata Kuliah</h2>
+            <p>
+                Platform ini berisi materi pembelajaran, <i>slide</i> presentasi, dan <i>source code</i> praktik untuk mata kuliah <strong>SD25-32202 Pemrosesan Bahasa Alami</strong>. Berfungsi sebagai panduan dan wadah eksplorasi bagi mahasiswa untuk memahami serta mempraktikkan langsung tahapan <i>pipeline</i> NLP, mulai dari tahap pendekatan <i>Machine Learning</i> tradisional hingga penerapan arsitektur <i>Deep Learning</i>.
+            </p>
+        </section>
+
+        <section>
+            <h2>📅 Sesi Workshop & Jadwal Perkuliahan</h2>
+            
+            <div class="grid-cards">
+                <!-- Sesi 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="tag">Pertemuan 6 & 7</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    </div>
+                    <h3>Sesi 1: NLP with Machine Learning</h3>
+                    <p>Pembahasan pipeline NLP menggunakan teknik Machine Learning klasik dan AutoML.</p>
+                    
+                    <div class="card-actions">
+                        <button class="btn primary btn-preview" data-pdf="slides/sesi1_slide.pdf">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Preview Slide
+                        </button>
+                        <a href="module_ML" class="btn" target="_blank">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                            Source Code
+                        </a>
+                        <a href="https://www.kaggle.com/datasets/jprestiliano/indonesian-chat-dataset" class="btn" target="_blank">Dataset</a>
+                    </div>
+                </div>
+
+                <!-- Sesi 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="tag">Pertemuan 9 & 10</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </div>
+                    <h3>Sesi 2: NLP with Deep Learning</h3>
+                    <p>Implementasi arsitektur Deep Learning tingkat lanjut untuk pemrosesan teks.</p>
+                    
+                    <div class="card-actions">
+                        <span class="btn disabled">Slide TBA</span>
+                        <span class="btn disabled">Code TBA</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF Preview Section -->
+            <div id="pdf-preview" class="featured-pdf">
+                <div class="pdf-header">
+                    <h3 id="preview-title">Preview Slide - Sesi 1</h3>
+                    <div style="display:flex; gap:10px;">
+                         <a id="preview-open" href="#" target="_blank" class="btn">Buka Tab Baru</a>
+                         <button id="close-preview" class="btn" style="padding: 6px; border-radius: 50%;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                         </button>
+                    </div>
+                </div>
+                <!-- Try to use github pages raw url proxy, or google doc viewer if necessary, but iframe on same domain works better for self hosted pdfs. -->
+                <iframe id="preview-frame" src="" title="PDF Preview"></iframe>
+            </div>
+        </section>
+
+        <section>
+            <div class="disclaimer">
+                <h4>⚠️ Peringatan Konten SARA & Eksplisit</h4>
+                <p>
+                    Studi kasus pada pembelajaran <strong>Sesi 1</strong> menggunakan data obrolan interaksi nyata pengguna gim daring (online game). Oleh karena itu, dataset yang digunakan mungkin akan memuat kata-kata <strong>SARA, slang, kata-kata rasis</strong>, dan bahasa yang <strong>tidak pantas</strong>. Materi ini murni didistribusikan dan digunakan untuk tujuan edukasi serta penelitian di bidang pemrosesan bahasa alami.
+                </p>
+            </div>
+
+            <h2>📜 Kontrak Kuliah</h2>
+            <p>Mahasiswa yang mengikuti perkuliahan dan workshop ini tunduk pada aturan Kontrak Kuliah yang disepakati bersama. Aturan selengkapnya dapat diakses pada halaman interaktif berikut: <a href="https://mctm.web.id/rules" target="_blank"><strong>mctm.web.id/rules</strong></a></p>
+            <ul>
+                <li><strong>Keterlambatan</strong>: Segala bentuk keterlambatan pengumpulan tugas tidak mendapat toleransi dan berakibat penalti 10% per jam keterlambatan.</li>
+                <li><strong>Susulan</strong>: Ujian atau tugas susulan tidak diberikan kecuali pada insiden mendesak khusus (dibuktikan secara tertulis).</li>
+            </ul>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Dikembangkan dan disusun oleh: <strong>Martin Manullang</strong></p>
+        <p>Kunjungi website: <a href="https://mctm.web.id" target="_blank">mctm.web.id</a></p>
+        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.7;">&copy; 2026 sd25-32202 - Institut Teknologi Sumatera</p>
+    </footer>
+
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle Dark Mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+    </button>
+
+    <script>
+        // Theme Toggle Logic
+        const toggleBtn = document.getElementById('themeToggle');
+        const sunIcon = toggleBtn.querySelector('.sun-icon');
+        const moonIcon = toggleBtn.querySelector('.moon-icon');
+        const html = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme-mctmlp') || 'dark';
+        applyTheme(savedTheme);
+
+        function applyTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            localStorage.setItem('theme-mctmlp', theme);
+            
+            if (theme === 'light') {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        });
+
+        // PDF Preview Logic
+        const previewBtns = document.querySelectorAll('.btn-preview');
+        const previewSection = document.getElementById('pdf-preview');
+        const previewFrame = document.getElementById('preview-frame');
+        const previewOpen = document.getElementById('preview-open');
+        const closePreview = document.getElementById('close-preview');
+
+        previewBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pdfUrl = btn.dataset.pdf;
+                previewFrame.src = `${pdfUrl}#view=FitH`;
+                previewOpen.href = pdfUrl;
+                previewSection.classList.add('active');
+                
+                // Scroll to preview somewhat smoothly
+                setTimeout(() => {
+                    previewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 100);
+            });
+        });
+
+        closePreview.addEventListener('click', () => {
+             previewSection.classList.remove('active');
+             previewFrame.src = '';
+        });
+    </script>
+</body>
+</html>
