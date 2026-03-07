@@ -20,6 +20,22 @@ from config import (
 # Suppress warnings agar output notebook lebih bersih
 warnings.filterwarnings("ignore")
 
+import logging
+try:
+    import lightgbm as lgb
+    # Menyembunyikan warning LightGBM dari sisi C++ maupun Python
+    logging.getLogger("lightgbm").setLevel(logging.ERROR)
+    
+    # Patch fungsi inisialisasinya untuk selalu menggunakan verbose=-1
+    for lgb_model in [lgb.LGBMClassifier, lgb.LGBMRegressor]:
+        original_init = lgb_model.__init__
+        def new_init(self, *args, **kwargs):
+            kwargs['verbose'] = -1
+            original_init(self, *args, **kwargs)
+        lgb_model.__init__ = new_init
+except ImportError:
+    pass
+
 
 # ══════════════════════════════════════════════
 # ⚙️ SETUP PYCARET
@@ -59,6 +75,8 @@ def setup_pycaret(df: pd.DataFrame):
         train_size=TRAIN_SIZE,
         verbose=True,
         html=True,
+        use_gpu=True,
+        fold=5,
     )
 
     print("✅ PyCaret setup selesai!")
@@ -94,7 +112,10 @@ def compare_all_models(sort: str = "F1", n_select: int = None):
     print(f"🏟️  Memulai Model Arena (sort by {sort})...")
     print(f"   Ini mungkin memakan waktu beberapa menit...\n")
 
-    best = compare_models(sort=sort, n_select=n_select)
+    best = compare_models(
+        sort=sort, 
+        n_select=n_select,
+    )
 
     print(f"\n✅ Selesai! Top {n_select} model telah dipilih.")
     return best
