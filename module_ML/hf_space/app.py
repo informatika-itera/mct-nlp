@@ -150,11 +150,11 @@ def predict_toxicity(text: str) -> dict:
 
 EXAMPLES = [
     ["gg wp semua, main lagi yuk"],
-    ["anjg lo noob bgt tolol"],
+    ["cupu lu mainnya beban tim"],
     ["nice play bro, carry terus"],
-    ["gblk banget sih lu main"],
+    ["bego lu gitu aja mati"],
     ["gw afk dulu ya bentar"],
-    ["dasar bego kontol gak bisa main"],
+    ["ampun dah dapet tim noob semua"],
 ]
 
 demo = gr.Interface(
