@@ -18,6 +18,7 @@
 \usepackage{titlesec}
 \usepackage{multirow}
 \usepackage{amsmath}
+\usepackage{amssymb}
 
 \geometry{
   top=2.5cm, bottom=2.5cm,
@@ -94,7 +95,7 @@
   {\large\bfseries TUGAS BESAR}\\[6pt]
   {\large SD25-32202 --- Pemrosesan Bahasa Alami}\\[4pt]
   {\normalsize Institut Teknologi Sumatera \quad $\bullet$ \quad Semester Genap 2025/2026}\\[2pt]
-  {\normalsize Dosen: Martin C.T. Manullang \quad $\bullet$ \quad \url{mctm.web.id}}
+  {\normalsize Dosen: Martin C.T. Manullang \quad $\bullet$ \quad \url{informatika-itera.github.io/mct-nlp}}
 \end{center}
 
 \vspace{0.5em}
@@ -267,8 +268,7 @@ References & Minimal 10 referensi ilmiah \\
 \begin{itemize}[noitemsep]
   \item Notebook EDA dan preprocessing selesai (di-\textit{commit} ke GitHub).
   \item Notebook PyCaret AutoML selesai: benchmark 3 algoritma ML, evaluasi, dan pilih model terbaik.
-  \item Model terbaik sudah di-export dan demo ML sudah di-deploy ke Hugging Face Spaces.
-  \item Bagian \textit{Dataset} dan \textit{Methodology} (ML) pada paper sudah mulai ditulis.
+  \item Demo ML sudah di-deploy ke Hugging Face Spaces dan \textbf{link dicantumkan di \texttt{README.md}}.
 \end{itemize}
 \textit{\small Dosen dapat mengecek repositori GitHub untuk memverifikasi progress pada tanggal ini.}
 \end{checkpointbox}
@@ -279,9 +279,8 @@ References & Minimal 10 referensi ilmiah \\
 \textbf{Target:} Model Deep Learning selesai\\[4pt]
 \textbf{Deliverable:}
 \begin{itemize}[noitemsep]
-  \item Notebook DL selesai dengan training log dan evaluasi.
-  \item Demo DL sudah di-deploy ke Hugging Face Spaces.
-  \item Bagian \textit{Methodology} (DL), \textit{Experiments}, dan \textit{Results} pada paper sudah selesai ditulis.
+  \item Notebook DL selesai dengan training log dan evaluasi (di-\textit{commit} ke GitHub).
+  \item Demo DL sudah di-deploy ke Hugging Face Spaces dan \textbf{link dicantumkan di \texttt{README.md}}.
 \end{itemize}
 \textit{\small Dosen dapat mengecek repositori GitHub untuk memverifikasi progress pada tanggal ini.}
 \end{checkpointbox}
@@ -394,10 +393,97 @@ Contoh tabel anggota pada \texttt{README.md}:
 
 \vspace{1em}
 \begin{flushright}
-  Bandar Lampung, Maret 2026\\[6pt]
+  Lampung Selatan, Maret 2026\\[6pt]
   \textbf{Martin C.T. Manullang}\\
   Dosen Pengampu\\
   SD25-32202 Pemrosesan Bahasa Alami
 \end{flushright}
+
+%------------------------------------------------
+% LAMPIRAN: CHECKLIST PROGRESS
+%------------------------------------------------
+\newpage
+\begin{center}
+  {\large\bfseries\color{itera} LAMPIRAN}\\[4pt]
+  {\large\bfseries Checklist Progress Tugas Besar}\\[2pt]
+  {\normalsize SD25-32202 Pemrosesan Bahasa Alami --- Semester Genap 2025/2026}
+\end{center}
+\vspace{0.5em}
+\noindent\color{itera}\rule{\linewidth}{1pt}
+\vspace{0.5em}
+
+\noindent Gunakan lembar ini untuk mentrack progres pengerjaan kelompok. Centang ($\checkmark$) setiap item yang sudah diselesaikan.
+
+\vspace{1em}
+
+%--- CP1 ---
+\begin{tcolorbox}[enhanced, colback=checkpointbg, colframe=itera, fonttitle=\bfseries,
+  title={Checkpoint 1 --- 18 Maret 2026: Dataset \& Registrasi}]
+\begin{itemize}[leftmargin=1.5em, label=$\square$, noitemsep]
+  \item Sepakati dataset yang akan digunakan bersama kelompok
+  \item Sepakati tugas klasifikasi: apa yang akan diprediksi/diklasifikasi
+  \item Buat repositori GitHub publik dengan nama \texttt{pba2026-[nama-kelompok]}
+  \item Buat \texttt{README.md} awal berisi tabel anggota (Nama, NIM, Username GitHub)
+  \item Isi form Tally: \href{https://tally.so/r/9q1xKK}{\texttt{tally.so/r/9q1xKK}} (NIM anggota, link repo, link dataset, penjabaran model)
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+%--- CP2 ---
+\begin{tcolorbox}[enhanced, colback=checkpointbg, colframe=itera!70!green, fonttitle=\bfseries,
+  title={Checkpoint 2 --- 8 April 2026: Model ML (PyCaret)}]
+\begin{itemize}[leftmargin=1.5em, label=$\square$, noitemsep]
+  \item Download dan eksplorasi dataset (EDA)
+  \item Lakukan preprocessing teks (cleaning, tokenisasi, feature extraction)
+  \item Jalankan PyCaret dan bandingkan 3 algoritma ML
+  \item Pilih model terbaik dan simpan/export model
+  \item Buat aplikasi demo (Gradio/Streamlit) untuk model ML
+  \item Deploy demo ML ke Hugging Face Spaces
+  \item Update \texttt{README.md}: tambahkan link HF Spaces --- ML Model
+  \item Commit semua notebook dan kode ke repositori GitHub
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+%--- CP3 ---
+\begin{tcolorbox}[enhanced, colback=checkpointbg, colframe=itera!40!orange, fonttitle=\bfseries,
+  title={Checkpoint 3 --- 22 April 2026: Model Deep Learning (PyTorch)}]
+\begin{itemize}[leftmargin=1.5em, label=$\square$, noitemsep]
+  \item Tentukan arsitektur DL yang akan digunakan
+  \item Verifikasi jumlah parameter model $\leq$ 10 juta parameter
+  \item Implementasi model dengan \textbf{PyTorch}
+  \item Latih model dan catat kurva training/validation loss
+  \item Evaluasi model DL pada data uji
+  \item Buat aplikasi demo (Gradio/Streamlit) untuk model DL
+  \item Deploy demo DL ke Hugging Face Spaces
+  \item Update \texttt{README.md}: tambahkan link HF Spaces --- DL Model
+  \item Commit semua notebook dan kode ke repositori GitHub
+\end{itemize}
+\end{tcolorbox}
+
+\vspace{0.5em}
+
+%--- CP4 ---
+\begin{tcolorbox}[enhanced, colback=checkpointbg, colframe=accent, fonttitle=\bfseries,
+  title={Checkpoint 4 (Final) --- 29 April 2026: Paper ArXiv}]
+\begin{itemize}[leftmargin=1.5em, label=$\square$, noitemsep]
+  \item Tentukan judul paper (Bahasa Inggris, memuat nama algoritma ML, arsitektur DL, dan kasus)
+  \item Susun urutan author: mahasiswa (1--3), dosen lain, Martin C.T. Manullang (terakhir)
+  \item Tulis bagian \textit{Abstract} dan \textit{Introduction}
+  \item Tulis bagian \textit{Related Work} (min.\ 10 referensi)
+  \item Tulis bagian \textit{Dataset} dan preprocessing
+  \item Tulis bagian \textit{Methodology} (pipeline ML dan arsitektur DL)
+  \item Tulis bagian \textit{Experiments} (konfigurasi, hyperparameter, metrik)
+  \item Susun tabel benchmark: bandingkan 3 model ML vs.\ 1 model DL
+  \item Tulis bagian \textit{Results \& Discussion} dan \textit{Conclusion}
+  \item Compile paper dengan LaTeX (ArXiv/NeurIPS/ACL template)
+  \item Submit paper ke \href{https://arxiv.org}{arXiv.org} dan tunggu hingga statusnya \textit{published}
+  \item Update \texttt{README.md}: tambahkan link arXiv paper
+  \item Commit file paper (\texttt{paper/main.tex} + \texttt{.bib}) ke repositori GitHub
+  \item Pastikan \texttt{README.md} lengkap dan rapi (tabel anggota, link HF $\times$2, link arXiv)
+\end{itemize}
+\end{tcolorbox}
 
 \end{document}
