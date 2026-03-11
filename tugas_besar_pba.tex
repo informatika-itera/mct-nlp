@@ -1,0 +1,403 @@
+\documentclass[11pt,a4paper]{article}
+
+%================================================
+% PACKAGES
+%================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[bahasa]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{multirow}
+\usepackage{amsmath}
+
+\geometry{
+  top=2.5cm, bottom=2.5cm,
+  left=2.5cm, right=2.5cm,
+  headheight=22pt
+}
+
+%================================================
+% COLORS
+%================================================
+\definecolor{itera}{RGB}{0, 82, 155}
+\definecolor{accent}{RGB}{220, 50, 47}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{checkpointbg}{RGB}{232, 244, 255}
+
+%================================================
+% HYPERREF SETUP
+%================================================
+\hypersetup{
+  colorlinks=true,
+  linkcolor=itera,
+  urlcolor=itera,
+  citecolor=itera
+}
+
+%================================================
+% HEADER / FOOTER
+%================================================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{itera}{\textbf{SD25-32202 Pemrosesan Bahasa Alami}}}
+\fancyhead[R]{\small\textcolor{itera}{Institut Teknologi Sumatera}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{itera}\leaders\hrule height \headrulewidth\hfill}}
+
+%================================================
+% TITLE FORMATTING
+%================================================
+\titleformat{\section}{\large\bfseries\color{itera}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{itera!80!black}}{}{0em}{}
+
+%================================================
+% TCOLORBOX STYLES
+%================================================
+\tcbuselibrary{skins,breakable}
+
+\newtcolorbox{checkpointbox}[2][]{
+  enhanced,
+  colback=checkpointbg,
+  colframe=itera,
+  fonttitle=\bfseries,
+  title={#2},
+  #1
+}
+
+\newtcolorbox{infobox}[1][]{
+  enhanced,
+  colback=lightgray,
+  colframe=itera!40,
+  #1
+}
+
+%================================================
+% DOCUMENT
+%================================================
+\begin{document}
+
+%------------------------------------------------
+% TITLE BLOCK
+%------------------------------------------------
+\begin{center}
+  {\Large\bfseries\color{itera} TERMS OF REFERENCE}\\[4pt]
+  {\large\bfseries TUGAS BESAR}\\[6pt]
+  {\large SD25-32202 --- Pemrosesan Bahasa Alami}\\[4pt]
+  {\normalsize Institut Teknologi Sumatera \quad $\bullet$ \quad Semester Genap 2025/2026}\\[2pt]
+  {\normalsize Dosen: Martin C.T. Manullang \quad $\bullet$ \quad \url{mctm.web.id}}
+\end{center}
+
+\vspace{0.5em}
+\noindent\color{itera}\rule{\linewidth}{1.5pt}
+\vspace{0.5em}
+
+%------------------------------------------------
+% DESKRIPSI UMUM
+%------------------------------------------------
+\section{Deskripsi Umum}
+
+Tugas Besar ini dirancang untuk melatih mahasiswa dalam membandingkan dua pendekatan utama dalam \textit{Natural Language Processing} (NLP): \textbf{Machine Learning (ML)} menggunakan \textit{AutoML framework} PyCaret, dan \textbf{Deep Learning (DL)}. Mahasiswa diharapkan menerapkan kedua teknik pada satu dataset yang sama, mengevaluasi performa masing-masing, mendeploy model ke Hugging Face Spaces, dan mendokumentasikan seluruh proses dalam sebuah paper ilmiah berformat ArXiv.
+
+\vspace{1em}
+
+\begin{infobox}
+\textbf{Ringkasan Tugas:}
+\begin{itemize}[noitemsep]
+  \item Pilih \textbf{satu dataset NLP} (klasifikasi teks, analisis sentimen, NER, dsb.)
+  \item Bangun model \textbf{ML} dengan \textbf{PyCaret}
+  \item Bangun model \textbf{DL} (LSTM, Transformer, BERT fine-tuning, dsb.)
+  \item Deploy \textbf{dua model} ke \textbf{Hugging Face Spaces}
+  \item Tulis dan publikasikan \textbf{paper} berformat LaTeX ArXiv
+  \item Simpan semua kode dan kontribusi di \textbf{repositori GitHub publik}
+\end{itemize}
+\end{infobox}
+
+%------------------------------------------------
+% KETENTUAN KELOMPOK
+%------------------------------------------------
+\section{Ketentuan Kelompok}
+
+\begin{itemize}
+  \item Setiap kelompok terdiri dari \textbf{3 orang mahasiswa}.
+  \item Pembagian tugas harus merata dan tercermin dari \textit{commit history} di GitHub.
+  \item Semua anggota kelompok wajib berkontribusi aktif: kontribusi individu \textbf{dinilai berdasarkan commit} pada repositori.
+\end{itemize}
+
+%------------------------------------------------
+% LUARAN (OUTPUT)
+%------------------------------------------------
+\section{Luaran yang Diharapkan}
+
+\subsection{1. Repositori GitHub Publik}
+
+\begin{itemize}
+  \item Repositori bersifat \textbf{publik} dan harus sudah dibuat sebelum \textit{checkpoint} pertama.
+  \item Nama repositori menggunakan format: \texttt{pba2026-[nama-kelompok]}
+  \item Dosen dapat sewaktu-waktu \textbf{mengecek repositori} di setiap \textit{checkpoint} untuk melihat progress pengerjaan --- aktivitas repositori (commit, push, branch) \textbf{menjadi bagian dari penilaian}.
+\end{itemize}
+
+\subsection{2. Dua Deployment di Hugging Face Spaces}
+
+\begin{itemize}
+  \item \textbf{Deployment 1}: Demo model ML (PyCaret) dengan antarmuka interaktif (Gradio atau Streamlit).
+  \item \textbf{Deployment 2}: Demo model DL dengan antarmuka interaktif (Gradio atau Streamlit).
+  \item Setiap deployment harus memiliki deskripsi yang jelas di halaman Hugging Face.
+  \item Link ke kedua deployment \textbf{wajib dicantumkan} di \texttt{README.md} repositori dengan label yang jelas (\textit{ML Model} dan \textit{DL Model}).
+\end{itemize}
+
+\subsection{3. Paper Ilmiah (Format LaTeX ArXiv)}
+
+Paper merupakan laporan \textbf{benchmark} yang membandingkan beberapa algoritma \textit{machine learning} (via PyCaret AutoML) dengan satu model \textit{deep learning} pada kasus klasifikasi teks yang dipilih. Tujuannya adalah menjawab: \textit{manakah pendekatan yang lebih unggul pada dataset dan kasus ini?}
+
+\begin{itemize}
+  \item Ditulis menggunakan template LaTeX ArXiv (\texttt{arxiv style} atau \texttt{NeurIPS/ACL}).
+  \item Paper wajib di-\textit{publish} ke \href{https://arxiv.org}{arXiv.org} (bukan hanya submitted) dan link arXiv \textbf{wajib dicantumkan} di \texttt{README.md}.
+  \item Panjang paper: \textbf{4--8 halaman} (tidak termasuk referensi).
+\end{itemize}
+
+\textbf{Ketentuan Kepengarangan (Authorship):}
+\begin{itemize}
+  \item Urutan \textit{author}: \textbf{mahasiswa (posisi 1--3)} diikuti seluruh dosen pengampu, dengan \textbf{Martin C.T. Manullang sebagai author terakhir} (\textit{corresponding author}).
+  \item Afiliasi seluruh author: Institut Teknologi Sumatera (ITERA).
+  \item Email yang digunakan adalah email ITERA resmi (\texttt{[nim]@student.itera.ac.id} untuk mahasiswa, \texttt{[nama]@itera.ac.id} untuk dosen).
+\end{itemize}
+
+\textbf{Format Judul:} Judul paper ditulis dalam \textbf{Bahasa Inggris} dan harus memuat: nama algoritma ML yang digunakan, nama arsitektur DL, dan kasus klasifikasi. Contoh judul:
+
+\begin{tcolorbox}[colback=lightgray,colframe=itera!40,fontupper=\small\itshape]
+``Benchmarking PyCaret AutoML Against BiLSTM for Sentiment Analysis on Indonesian Product Reviews''\\[4pt]
+``A Comparative Study of Random Forest, SVM, and BERT Fine-Tuning for Fake News Detection''\\[4pt]
+``Machine Learning vs. Deep Learning for Toxic Comment Classification: A PyCaret and IndoBERT Benchmark''
+\end{tcolorbox}
+
+\textbf{Struktur paper yang direkomendasikan:}
+
+\begin{center}
+\begin{tabular}{lp{9cm}}
+\toprule
+\textbf{Bagian} & \textbf{Isi} \\
+\midrule
+Abstract & Ringkasan dataset, metode, dan hasil benchmark \\
+Introduction & Latar belakang, motivasi, dan kontribusi \\
+Related Work & Referensi terkait dataset dan teknik yang digunakan \\
+Dataset & Deskripsi dataset, statistik, dan preprocessing \\
+Methodology & Pipeline ML (PyCaret, beberapa algoritma) dan arsitektur DL \\
+Experiments & Konfigurasi eksperimen, hyperparameter, metrik evaluasi \\
+Results \& Discussion & Tabel benchmark semua model, analisis komparatif \\
+Conclusion & Kesimpulan: model terbaik dan alasannya \\
+References & Minimal 10 referensi ilmiah \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%------------------------------------------------
+% DATASET
+%------------------------------------------------
+\section{Ketentuan Pemilihan Dataset}
+
+\begin{itemize}
+  \item Dataset harus relevan dengan tugas NLP (klasifikasi teks, analisis sentimen, deteksi spam, NER, dsb.).
+  \item Dataset tidak boleh sama antar kelompok --- didaftarkan via form Tally pada \textit{checkpoint} pertama.
+  \item Sumber dataset yang disarankan:
+  \begin{itemize}
+    \item \href{https://huggingface.co/datasets}{Hugging Face Datasets}
+    \item \href{https://www.kaggle.com/datasets}{Kaggle}
+    \item \href{https://paperswithcode.com/datasets}{Papers with Code}
+    \item Dataset Bahasa Indonesia (IndoNLU, SMSA, NusaX, dsb.)
+  \end{itemize}
+  \item Pastikan dataset memiliki jumlah sampel yang cukup representatif untuk tugas klasifikasi yang dipilih.
+\end{itemize}
+
+%------------------------------------------------
+% TEKNIK YANG DIGUNAKAN
+%------------------------------------------------
+\section{Teknik yang Digunakan}
+
+\subsection{Machine Learning dengan PyCaret}
+\begin{itemize}
+  \item Gunakan modul \texttt{pycaret.classification} (sesuai tugas).
+  \item Bandingkan \textbf{3 algoritma} ML, pilih dan evaluasi model terbaik.
+  \item Dokumentasikan preprocessing, feature engineering (TF-IDF, BoW, dsb.), dan evaluasi.
+\end{itemize}
+
+\subsection{Deep Learning}
+\begin{itemize}
+  \item Pilih arsitektur DL yang sesuai (LSTM, GRU, CNN-text, BERT fine-tuning, dsb.) --- \textbf{bebas}, namun total parameter model \textbf{tidak boleh melebihi 10 juta parameter (10M)}.
+  \item Framework wajib menggunakan \textbf{PyTorch}.
+  \item Dokumentasikan arsitektur, jumlah parameter, hyperparameter training, dan kurva pelatihan.
+\end{itemize}
+
+%------------------------------------------------
+% CHECKPOINT
+%------------------------------------------------
+\section{Jadwal dan Checkpoint}
+
+\begin{checkpointbox}[colframe=itera]{Checkpoint 1 --- 18 Maret 2026}
+\textbf{Target:} Pemilihan dan pelaporan dataset\\[4pt]
+\textbf{Deliverable:}
+\begin{itemize}[noitemsep]
+  \item Isi form Tally berikut: \href{https://tally.so/r/9q1xKK}{\texttt{tally.so/r/9q1xKK}}\\
+  Form meminta informasi berikut:
+  \begin{itemize}[noitemsep]
+    \item \textbf{NIM} seluruh anggota kelompok (3 orang)
+    \item \textbf{Link repositori GitHub} (buat repo kosong terlebih dahulu, bersifat publik)
+    \item \textbf{Link dataset} yang dipilih
+    \item \textbf{Penjabaran model}: apa yang ingin diklasifikasi dari dataset tersebut
+  \end{itemize}
+  \item Repositori GitHub publik sudah dibuat dengan nama format \texttt{pba2026-[nama-kelompok]} (minimal berisi \texttt{README.md} dan struktur folder awal).
+\end{itemize}
+\textit{\small Dosen akan mengecek repositori GitHub untuk memverifikasi bahwa repo sudah dibuat dan publik.}
+\end{checkpointbox}
+
+\vspace{0.5em}
+
+\begin{checkpointbox}[colframe=itera!70!green]{Checkpoint 2 --- 8 April 2026}
+\textbf{Target:} Model ML dengan PyCaret selesai\\[4pt]
+\textbf{Deliverable:}
+\begin{itemize}[noitemsep]
+  \item Notebook EDA dan preprocessing selesai (di-\textit{commit} ke GitHub).
+  \item Notebook PyCaret AutoML selesai: benchmark 3 algoritma ML, evaluasi, dan pilih model terbaik.
+  \item Model terbaik sudah di-export dan demo ML sudah di-deploy ke Hugging Face Spaces.
+  \item Bagian \textit{Dataset} dan \textit{Methodology} (ML) pada paper sudah mulai ditulis.
+\end{itemize}
+\textit{\small Dosen dapat mengecek repositori GitHub untuk memverifikasi progress pada tanggal ini.}
+\end{checkpointbox}
+
+\vspace{0.5em}
+
+\begin{checkpointbox}[colframe=itera!40!orange]{Checkpoint 3 --- 22 April 2026}
+\textbf{Target:} Model Deep Learning selesai\\[4pt]
+\textbf{Deliverable:}
+\begin{itemize}[noitemsep]
+  \item Notebook DL selesai dengan training log dan evaluasi.
+  \item Demo DL sudah di-deploy ke Hugging Face Spaces.
+  \item Bagian \textit{Methodology} (DL), \textit{Experiments}, dan \textit{Results} pada paper sudah selesai ditulis.
+\end{itemize}
+\textit{\small Dosen dapat mengecek repositori GitHub untuk memverifikasi progress pada tanggal ini.}
+\end{checkpointbox}
+
+\vspace{0.5em}
+
+\begin{checkpointbox}[colframe=accent]{Checkpoint 4 (Final) --- 29 April 2026}
+\textbf{Target:} Report selesai dan dipublikasikan ke arXiv\\[4pt]
+\textbf{Deliverable:}
+\begin{itemize}[noitemsep]
+  \item Paper lengkap (LaTeX) sudah di-submit ke \href{https://arxiv.org}{arXiv.org} dan statusnya \textit{published} (bukan hanya submitted).
+  \item \texttt{README.md} repositori memuat ketiga tautan berikut secara eksplisit:
+  \begin{itemize}[noitemsep]
+    \item Link \textbf{Hugging Face Spaces --- ML model} (PyCaret)
+    \item Link \textbf{Hugging Face Spaces --- DL model}
+    \item Link \textbf{arXiv paper} yang sudah \textit{published}
+  \end{itemize}
+  \item Semua kode, notebook, dan file paper (\texttt{paper/main.tex}) ada di repositori GitHub.
+\end{itemize}
+\end{checkpointbox}
+
+
+%------------------------------------------------
+% PENILAIAN
+%------------------------------------------------
+\section{Rubrik Penilaian}
+
+\subsection{Penilaian Kelompok}
+
+\begin{center}
+\begin{tabular}{lp{8cm}c}
+\toprule
+\textbf{Komponen} & \textbf{Keterangan} & \textbf{Bobot} \\
+\midrule
+Dataset \& EDA       & Kualitas eksplorasi data dan preprocessing & 10\% \\
+Model ML (PyCaret)   & Kelengkapan AutoML, evaluasi, perbandingan algoritma & 20\% \\
+Model DL             & Kesesuaian arsitektur, training, evaluasi & 20\% \\
+Deployment HF        & Fungsionalitas \& kualitas antarmuka kedua demo & 15\% \\
+Paper ArXiv          & Kualitas tulisan, analisis komparatif, referensi & 25\% \\
+Repositori GitHub    & Struktur, dokumentasi (\texttt{README}), kelengkapan & 10\% \\
+\midrule
+\textbf{Total}       & & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Penilaian Individu}
+
+Kontribusi individu dinilai berdasarkan:
+\begin{itemize}
+  \item \textbf{Commit history} di GitHub: jumlah, kualitas, dan konsistensi commit.
+  \item Setiap anggota diharapkan memiliki kontribusi \textit{commit} yang signifikan dan merata.
+  \item Anggota yang tidak memiliki commit akan mendapat nilai \textbf{0} untuk komponen individu.
+\end{itemize}
+
+\begin{tcolorbox}[colback=red!5,colframe=accent,title=\textbf{Perhatian}]
+  Kelompok yang terbukti menggunakan kode orang lain tanpa atribusi, atau commit dilakukan oleh satu orang untuk semua anggota, akan dikenakan sanksi akademik sesuai peraturan ITERA.
+\end{tcolorbox}
+
+%------------------------------------------------
+% PENGUMPULAN
+%------------------------------------------------
+\section{Cara Pengumpulan}
+
+\begin{enumerate}
+  \item Buat repositori GitHub \textbf{publik} dengan nama format: \texttt{pba2026-[nama-kelompok]}
+  \item Desain \texttt{README.md} dengan \textbf{rapi dan informatif}. README wajib memuat:
+  \begin{itemize}[noitemsep]
+    \item \textbf{Judul proyek} dan deskripsi singkat tugas klasifikasi yang diselesaikan
+    \item \textbf{Tabel anggota kelompok} dengan kolom: Nama, NIM, dan Username GitHub
+    \item Deskripsi singkat dataset yang digunakan
+    \item \textbf{Link HF Spaces --- ML Model} (hasil PyCaret)
+    \item \textbf{Link HF Spaces --- DL Model} (PyTorch)
+    \item \textbf{Link arXiv} paper yang sudah \textit{published}
+  \end{itemize}
+  \item Daftarkan kelompok dan dataset melalui form Tally \href{https://tally.so/r/9q1xKK}{\texttt{tally.so/r/9q1xKK}} pada Checkpoint 1.
+\end{enumerate}
+
+Contoh tabel anggota pada \texttt{README.md}:
+
+\begin{tcolorbox}[colback=lightgray,colframe=itera!40,fontupper=\small\ttfamily]
+| Nama | NIM | GitHub |\\
+| ---- | --- | ------ |\\
+| Budi Santoso | 121450001 | @budisantoso |\\
+| Sari Dewi | 121450002 | @saridewi |\\
+| Andi Pratama | 121450003 | @andipratama |
+\end{tcolorbox}
+
+%------------------------------------------------
+% TIPS
+%------------------------------------------------
+\section{Tips dan Sumber Daya}
+
+\begin{itemize}
+  \item \textbf{PyCaret NLP}: \href{https://pycaret.gitbook.io/docs/}{pycaret.gitbook.io/docs}
+  \item \textbf{Hugging Face Spaces}: \href{https://huggingface.co/docs/hub/spaces}{huggingface.co/docs/hub/spaces}
+  \item \textbf{Template LaTeX ArXiv}: \href{https://arxiv.org/help/submit_latex}{arxiv.org/help/submit\_latex} --- gunakan \texttt{ar5iv} style atau template konferensi (ACL, EMNLP)
+  \item \textbf{Dataset Bahasa Indonesia}: IndoNLU (\href{https://github.com/indobenchmark/indonlu}{github.com/indobenchmark/indonlu}), NusaX
+  \item Gunakan \textbf{Google Colab} atau \textbf{Kaggle Notebooks} untuk training jika tidak memiliki GPU.
+\end{itemize}
+
+%------------------------------------------------
+% PENUTUP
+%------------------------------------------------
+\vspace{1em}
+\noindent\color{itera}\rule{\linewidth}{0.5pt}
+\vspace{0.5em}
+
+\noindent Dokumen ini berlaku sebagai panduan resmi Tugas Besar SD25-32202 Pemrosesan Bahasa Alami, Semester Genap 2025/2026. Pertanyaan dapat diajukan melalui saluran komunikasi resmi kelas.
+
+\vspace{1em}
+\begin{flushright}
+  Bandar Lampung, Maret 2026\\[6pt]
+  \textbf{Martin C.T. Manullang}\\
+  Dosen Pengampu\\
+  SD25-32202 Pemrosesan Bahasa Alami
+\end{flushright}
+
+\end{document}
