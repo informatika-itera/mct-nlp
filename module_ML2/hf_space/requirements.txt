@@ -1,0 +1,4 @@
+pycaret
+gradio
+pandas
+scikit-learn
