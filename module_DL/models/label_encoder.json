@@ -1,0 +1,9 @@
+{
+  "Anxiety": 0,
+  "Bipolar": 1,
+  "Depression": 2,
+  "Normal": 3,
+  "Personality Disorder": 4,
+  "Stress": 5,
+  "Suicidal": 6
+}
