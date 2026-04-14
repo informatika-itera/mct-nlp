@@ -122,6 +122,170 @@
     \end{exampleblock}
 \end{frame}
 
+%--------------------------------------------------
+% KELEMAHAN TF-IDF (5 slide)
+%--------------------------------------------------
+
+\begin{frame}
+    \frametitle{TF-IDF: Contoh Representasi}
+    \framesubtitle{Tiga dokumen, satu matriks fitur}
+    \small
+    \textbf{Corpus:}
+    \quad \texttt{D1: "saya suka kopi"} \quad
+    \texttt{D2: "saya suka teh"} \quad
+    \texttt{D3: "kopi enak sekali"}
+    \vspace{0.4em}
+
+    \textbf{Vocabulary} (urutan abjad): \texttt{enak | kopi | saya | sekali | suka | teh}
+    \vspace{0.4em}
+
+    \begin{center}
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \begin{tabular}{l|cccccc}
+        \toprule
+         & \texttt{enak} & \texttt{kopi} & \texttt{saya} & \texttt{sekali} & \texttt{suka} & \texttt{teh} \\
+        \midrule
+        D1 & 0 & \textbf{0.58} & \textbf{0.58} & 0 & \textbf{0.58} & 0 \\
+        D2 & 0 & 0 & \textbf{0.58} & 0 & \textbf{0.58} & \textbf{0.58} \\
+        D3 & \textbf{0.58} & \textbf{0.58} & 0 & \textbf{0.58} & 0 & 0 \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{0.3em}
+    \begin{itemize}
+        \item Setiap \textbf{baris} = satu dokumen; setiap \textbf{kolom} = satu kata.
+        \item Nilai $> 0$ hanya untuk kata yang \textit{muncul} di dokumen tersebut.
+        \item D1 dan D3 sama-sama punya kata \texttt{kopi} $\Rightarrow$ ada sedikit kemiripan.
+        \item Tapi \texttt{suka} dan \texttt{enak} yang bermakna mirip? \textbf{Tidak terhubung sama sekali.}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Kelemahan TF-IDF \#1}
+    \framesubtitle{Tidak Paham Makna (Semantik)}
+    \small
+    TF-IDF hanya melihat \textbf{kata yang persis sama} --- bukan maknanya.
+    \vspace{0.5em}
+
+    \begin{columns}[T]
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=gray!10, colframe=gray!50, title=Kalimat A, fonttitle=\small\bfseries]
+            \texttt{mobil mogok di jalan}
+        \end{tcolorbox}
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=gray!10, colframe=gray!50, title=Kalimat B, fonttitle=\small\bfseries]
+            \texttt{kendaraan rusak di jalanan}
+        \end{tcolorbox}
+    \end{columns}
+    \vspace{0.5em}
+    \begin{alertblock}{Masalah}
+        Tidak ada satu pun kata yang sama $\Rightarrow$ TF-IDF menganggap kedua kalimat \textbf{tidak berkaitan sama sekali}, padahal maknanya hampir identik.
+    \end{alertblock}
+    \vspace{0.3em}
+    \textbf{Akar penyebab}: TF-IDF tidak mengenal \textit{sinonim} --- ``mobil'' $\neq$ ``kendaraan'', ``mogok'' $\neq$ ``rusak''.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Kelemahan TF-IDF \#2}
+    \framesubtitle{Tidak Paham Konteks}
+    \small
+    Satu kata bisa punya makna \textbf{berbeda} tergantung konteks kalimat.
+    \vspace{0.5em}
+
+    \begin{columns}[T]
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=nyublue!8, colframe=nyublue!50, title=Konteks Keuangan, fonttitle=\small\bfseries]
+            \texttt{bank tempat menyimpan uang}
+        \end{tcolorbox}
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=nyublue!8, colframe=nyublue!50, title=Konteks Alam, fonttitle=\small\bfseries]
+            \texttt{bank sungai yang curam}
+        \end{tcolorbox}
+    \end{columns}
+    \vspace{0.5em}
+    \begin{alertblock}{Masalah}
+        Kata \textbf{``bank''} mendapat skor TF-IDF yang \textbf{sama persis} di kedua kalimat, padahal artinya berbeda sama sekali.
+    \end{alertblock}
+    \vspace{0.3em}
+    TF-IDF memperlakukan token sebagai simbol tanpa makna --- kata dikodekan sebagai angka, tidak pernah diinterpretasi berdasarkan lingkungannya.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Kelemahan TF-IDF \#3}
+    \framesubtitle{Sparse \& Boros Memori}
+    \small
+    Ukuran vektor TF-IDF = ukuran \textit{vocabulary} seluruh corpus.
+    \vspace{0.4em}
+    \begin{itemize}
+        \item Vocabulary 50.000 kata $\Rightarrow$ setiap dokumen menjadi \textbf{vektor sepanjang 50.000}.
+        \item Mayoritas nilainya \textbf{nol} karena kata-kata tersebut tidak muncul di dokumen itu.
+    \end{itemize}
+    \vspace{0.3em}
+    \begin{tcolorbox}[colback=gray!10, colframe=gray!40]
+        \texttt{\small [0, 0, 0, 0, 0.3, 0, 0, 0, 0, 0, 0.5, 0, 0, \ldots]}\\[0.15em]
+        \texttt{\small \hspace{10.2em}$\uparrow$ 99\% nilainya nol}
+    \end{tcolorbox}
+    \vspace{0.3em}
+    \begin{exampleblock}{Dampak Praktis}
+        Dataset 100.000 dokumen $\times$ 50.000 fitur = \textbf{5 miliar sel} --- sebagian besar kosong.
+        Dataset besar $\Rightarrow$ memori sistem bisa habis.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Kelemahan TF-IDF \#4}
+    \framesubtitle{Tidak Paham Urutan Kata \& Out-of-Vocabulary}
+    \small
+    \textbf{(a) Urutan kata diabaikan sepenuhnya} (\textit{bag of words}):
+    \vspace{0.2em}
+    \begin{columns}[T]
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=gray!10, colframe=gray!40]
+            \texttt{anjing menggigit orang}
+        \end{tcolorbox}
+        \column{0.47\textwidth}
+        \begin{tcolorbox}[colback=gray!10, colframe=gray!40]
+            \texttt{orang menggigit anjing}
+        \end{tcolorbox}
+    \end{columns}
+    \vspace{0.2em}
+    Kata sama, frekuensi sama $\Rightarrow$ \textbf{vektor identik} --- padahal maknanya sangat berbeda.
+    \vspace{0.5em}
+
+    \textbf{(b) Out-of-Vocabulary (OOV)} --- vocabulary dibekukan setelah training:
+    \vspace{0.2em}
+    \begin{tcolorbox}[colback=gray!10, colframe=gray!40]
+        \texttt{\small Vocab: ["kopi", "teh", "susu"]}\\[0.15em]
+        \texttt{\small Dokumen baru: "saya suka americano"}\\
+        \texttt{\small \hspace{12.3em}$\uparrow$ tidak dikenal $\Rightarrow$ diabaikan}
+    \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Ringkasan: Kelemahan TF-IDF}
+    \framesubtitle{Mengapa kita perlu pendekatan yang lebih canggih}
+    \small
+    \begin{center}
+    \begin{tabular}{ll}
+        \toprule
+        \textbf{Kelemahan} & \textbf{Akibat} \\
+        \midrule
+        Tidak paham sinonim   & Kalimat mirip dianggap tidak berkaitan \\
+        Tidak paham konteks   & Kata ambigu salah diinterpretasi \\
+        Sparse vector         & Boros memori, komputasi lambat \\
+        Abaikan urutan kata   & Makna struktural hilang \\
+        Out-of-Vocabulary     & Kata baru diabaikan total \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{0.5em}
+    \begin{tcolorbox}[colback=nyublue!10, colframe=nyublue, boxrule=0.8mm, arc=2mm, halign=center]
+        Semua kelemahan ini dijawab oleh \textbf{Word Embedding} ---
+        representasi \textit{dense} yang paham sinonim, urutan, dan konteks.
+    \end{tcolorbox}
+\end{frame}
+
 \begin{frame}
     \frametitle{Disclaimer Dataset}
     \begin{alertblock}{Peringatan Konten Sensitif}
@@ -678,6 +842,248 @@
             \footnotesize Parameter: \texttt{patience=3} $\rightarrow$ training berhenti jika val loss tidak membaik selama 3 epoch berturut-turut.
         \end{alertblock}
     \end{columns}
+\end{frame}
+
+%================================================
+% SECTION 2B: WORD EMBEDDING
+%================================================
+\section{Word Embedding: Kata Jadi Vektor}
+
+% --- WE 1: Masalah one-hot ---
+\begin{frame}[shrink=5]
+    \frametitle{Dari Kata ke Angka}
+    \framesubtitle{One-Hot Encoding: cara paling polos}
+    \small
+    Komputer tidak bisa membaca teks --- kita harus mengubah setiap kata menjadi \textbf{angka} dulu.
+    Cara paling sederhana: \textbf{One-Hot Encoding}. Vocab = \texttt{[anjing, kucing, ikan, burung]}
+    \vspace{0.15em}
+    \begin{center}
+    \footnotesize
+    \begin{tabular}{lcccc}
+        \toprule
+        Kata & anjing & kucing & ikan & burung \\
+        \midrule
+        \texttt{anjing} & \textbf{1} & 0 & 0 & 0 \\
+        \texttt{kucing} & 0 & \textbf{1} & 0 & 0 \\
+        \texttt{ikan}   & 0 & 0 & \textbf{1} & 0 \\
+        \texttt{burung} & 0 & 0 & 0 & \textbf{1} \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{0.1em}
+    \begin{alertblock}{Masalah}
+        \footnotesize
+        \begin{itemize}
+            \item \textbf{Semua kata sama jauhnya}: jarak \texttt{anjing}--\texttt{kucing} = jarak \texttt{anjing}--\texttt{ikan}, padahal keduanya sama-sama hewan peliharaan.
+            \item \textbf{Sparse}: 50.000 kata $\Rightarrow$ vektor 50.000 elemen, hampir semuanya nol.
+        \end{itemize}
+    \end{alertblock}
+\end{frame}
+
+% --- WE 2: Ide dasar embedding ---
+\begin{frame}
+    \frametitle{Ide Word Embedding}
+    \framesubtitle{Kata yang mirip maknanya → posisi yang berdekatan}
+    \small
+    Bayangkan kamu bisa \textbf{memetakan} setiap kata ke sebuah titik di ruang koordinat.\\
+    Kata yang maknanya dekat $\Rightarrow$ titiknya juga dekat.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[scale=1.0]
+        % axes
+        \draw[->, thick, gray] (-0.3,0) -- (4.2,0) node[right, gray, font=\tiny] {dimensi 1};
+        \draw[->, thick, gray] (0,-0.3) -- (0,3.3) node[above, gray, font=\tiny] {dimensi 2};
+
+        % hewan cluster
+        \filldraw[nyublue]   (0.8, 2.6) circle (2.5pt) node[above, font=\small] {\texttt{anjing}};
+        \filldraw[nyublue]   (1.3, 2.2) circle (2.5pt) node[right, font=\small] {\texttt{kucing}};
+        \filldraw[nyublue]   (0.6, 1.9) circle (2.5pt) node[left,  font=\small] {\texttt{kelinci}};
+
+        % makanan cluster
+        \filldraw[nyupurple] (3.2, 0.7) circle (2.5pt) node[above, font=\small] {\texttt{kopi}};
+        \filldraw[nyupurple] (3.6, 0.5) circle (2.5pt) node[right, font=\small] {\texttt{teh}};
+        \filldraw[nyupurple] (3.0, 1.1) circle (2.5pt) node[left,  font=\small] {\texttt{susu}};
+
+        % oval labels
+        \draw[nyublue, dashed, rounded corners=8pt] (0.3,1.6) rectangle (1.7,3.0);
+        \node[nyublue, font=\tiny\itshape] at (1.0, 1.4) {hewan peliharaan};
+
+        \draw[nyupurple, dashed, rounded corners=8pt] (2.6,0.2) rectangle (4.0,1.4);
+        \node[nyupurple, font=\tiny\itshape] at (3.3, 1.6) {minuman};
+    \end{tikzpicture}
+    \end{center}
+    \vspace{0.1em}
+    Ini baru \textbf{2 dimensi} supaya mudah divisualisasikan.\\
+    Dalam praktik, satu kata biasanya direpresentasikan dalam \textbf{100--300 dimensi}.
+\end{frame}
+
+% --- WE 3: Vektor multi-dimensi ---
+\begin{frame}[shrink=6]
+    \frametitle{Kata sebagai Koordinat Multi-Dimensi}
+    \framesubtitle{Tiap dimensi menangkap satu aspek makna}
+    \small
+    Setiap kata direpresentasikan sebagai \textbf{daftar angka} (vektor):
+    \vspace{0.1em}
+    \begin{center}
+    \footnotesize
+    \begin{tabular}{lrrrrrr}
+        \toprule
+        Kata & $d_1$ & $d_2$ & $d_3$ & $d_4$ & $d_5$ & \ldots \\
+        \midrule
+        \texttt{raja}   &  0.82 & -0.41 &  0.03 &  0.71 &  0.55 & \ldots \\
+        \texttt{ratu}   &  0.79 & -0.38 &  0.02 & -0.69 &  0.52 & \ldots \\
+        \texttt{pria}   &  0.45 & -0.90 &  0.01 &  0.66 &  0.20 & \ldots \\
+        \texttt{wanita} &  0.43 & -0.87 &  0.00 & -0.64 &  0.21 & \ldots \\
+        \texttt{kopi}   & -0.10 &  0.12 &  0.89 &  0.05 & -0.30 & \ldots \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{0.1em}
+    \begin{itemize}
+        \item Dimensi-dimensi ini \textbf{tidak diberi nama} oleh manusia --- model yang menemukan sendiri.
+        \item Bisa saja $d_4$ menangkap ``jenis kelamin'', $d_1$ menangkap ``jabatan'' --- kita tidak tahu persis.
+        \item \texttt{raja} dan \texttt{ratu} hampir identik di semua dimensi, kecuali $d_4$ yang berlawanan tanda.
+    \end{itemize}
+\end{frame}
+
+% --- WE 4: Word2Vec ---
+\begin{frame}
+    \frametitle{Word2Vec: Cara Melatih Embedding}
+    \framesubtitle{"Kamu dinilai dari teman-temanmu"}
+    \small
+    \textbf{Ide utama Word2Vec}: sebuah kata bisa dipahami maknanya dari kata-kata \textit{di sekitarnya}.
+
+    \vspace{0.15em}
+    \begin{tcolorbox}[colback=nyublue!8, colframe=nyublue!50]
+        \centering
+        \textit{``Saya tadi minum \underline{\hspace{1.2cm}} di warung kopi.''}\\
+        \small Kata apa yang masuk akal? $\Rightarrow$ \textbf{kopi}, \textbf{teh}, \textbf{susu} --- bukan \textbf{mobil} atau \textbf{gunung}.
+    \end{tcolorbox}
+    \vspace{0.15em}
+    Word2Vec melatih model untuk \textbf{menebak kata yang hilang} dari konteks kalimat.
+    Kata-kata dengan konteks serupa otomatis mendapat \textbf{vektor yang mirip}.
+    \vspace{0.2em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{CBOW} (\textit{Continuous Bag of Words})\\
+        \small Konteks $\rightarrow$ tebak kata tengah\\
+        \texttt{[minum, di, warung]} $\rightarrow$ \texttt{kopi}
+        \column{0.48\textwidth}
+        \textbf{Skip-Gram}\\
+        \small Kata tengah $\rightarrow$ tebak konteks\\
+        \texttt{kopi} $\rightarrow$ \texttt{[minum, di, warung]}
+    \end{columns}
+    \vspace{0.2em}
+    \begin{exampleblock}{Hasil Training}
+        Model tidak pernah diajarkan ``kopi dan teh itu mirip'' --- ia \textbf{menemukan sendiri} lewat jutaan kalimat.
+    \end{exampleblock}
+\end{frame}
+
+% --- WE 5: PCA / visualisasi 2D ---
+\begin{frame}
+    \frametitle{Dari 300 Dimensi ke 2 Dimensi}
+    \framesubtitle{Visualisasi dengan PCA / t-SNE}
+    \small
+    Vektor 300 dimensi \textbf{tidak mungkin} kita gambar langsung.\\
+    Solusi: \textbf{kompres} ke 2 dimensi sambil mempertahankan struktur kedekatan antarkata.
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Ruang asli (300 dim):}\\[0.3em]
+        \begin{tcolorbox}[colback=gray!10, colframe=gray!40, fontupper=\small]
+            \texttt{raja}   = [0.82, -0.41, \ldots]\\
+            \texttt{ratu}   = [0.79, -0.38, \ldots]\\
+            \texttt{kopi}   = [-0.10, 0.12, \ldots]\\
+            \vdots
+        \end{tcolorbox}
+
+        \column{0.48\textwidth}
+        \textbf{Setelah PCA / t-SNE (2 dim):}
+        \vspace{0.2em}
+        \begin{center}
+        \begin{tikzpicture}[scale=0.85]
+            \draw[->, gray, thin] (-1.5,0) -- (1.8,0);
+            \draw[->, gray, thin] (0,-1.2) -- (0,1.8);
+            \filldraw[nyublue]   (-0.9, 1.3) circle (2pt) node[above, font=\tiny] {raja};
+            \filldraw[nyublue]   (-0.6, 1.1) circle (2pt) node[right, font=\tiny] {ratu};
+            \filldraw[nyublue]   (-1.1, 0.9) circle (2pt) node[left,  font=\tiny] {pria};
+            \filldraw[nyublue]   (-0.7, 0.7) circle (2pt) node[right, font=\tiny] {wanita};
+            \filldraw[nyupurple] ( 1.2,-0.8) circle (2pt) node[right, font=\tiny] {kopi};
+            \filldraw[nyupurple] ( 1.0,-1.0) circle (2pt) node[right, font=\tiny] {teh};
+            \filldraw[nyupurple] ( 1.3,-0.5) circle (2pt) node[right, font=\tiny] {susu};
+        \end{tikzpicture}
+        \end{center}
+    \end{columns}
+    \vspace{0.2em}
+    \begin{itemize}
+        \item \textbf{PCA}: proyeksi linear, cepat, bagus untuk gambaran umum.
+        \item \textbf{t-SNE}: non-linear, lebih bagus memunculkan klaster, tapi lebih lambat.
+        \item Kedua metode ini hanya untuk \textbf{visualisasi} --- bukan untuk training.
+    \end{itemize}
+\end{frame}
+
+% --- WE 6: Vector arithmetic ---
+\begin{frame}
+    \frametitle{Sifat Ajaib Word Embedding}
+    \framesubtitle{Matematika dengan makna kata}
+    \small
+    Karena kata direpresentasikan sebagai vektor, kita bisa melakukan \textbf{operasi matematika} pada \textit{makna}:
+
+    \vspace{0.15em}
+    \begin{center}
+    \begin{tcolorbox}[colback=nyublue!10, colframe=nyublue, boxrule=0.8mm, width=0.78\textwidth, halign=center]
+        \large
+        $\vec{\texttt{raja}} - \vec{\texttt{pria}} + \vec{\texttt{wanita}} \approx \vec{\texttt{ratu}}$
+    \end{tcolorbox}
+    \end{center}
+    \vspace{0.1em}
+    \begin{center}
+    \begin{tcolorbox}[colback=nyublue!10, colframe=nyublue, boxrule=0.8mm, width=0.78\textwidth, halign=center]
+        \large
+        $\vec{\texttt{Paris}} - \vec{\texttt{Prancis}} + \vec{\texttt{Indonesia}} \approx \vec{\texttt{Jakarta}}$
+    \end{tcolorbox}
+    \end{center}
+    \vspace{0.15em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Apa artinya ini?}
+        \begin{itemize}
+            \item Embedding menangkap \textbf{relasi} antar konsep, bukan hanya kata.
+            \item Konsep ``jenis kelamin'' dan ``ibu kota'' bisa dihitung seperti aritmetika biasa.
+        \end{itemize}
+        \column{0.48\textwidth}
+        \textbf{Bagaimana ini terjadi?}\\[0.2em]
+        Murni dari jutaan kalimat --- model tidak pernah diajarkan konsep ``ibu kota'' secara eksplisit. Pola itu \textbf{muncul sendiri}.
+    \end{columns}
+\end{frame}
+
+% --- WE 7: Ringkasan ---
+\begin{frame}
+    \frametitle{Ringkasan: One-Hot vs Word Embedding}
+    \framesubtitle{Lompatan besar dalam representasi teks}
+    \small
+    \begin{center}
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lll}
+        \toprule
+        & \textbf{One-Hot / TF-IDF} & \textbf{Word Embedding} \\
+        \midrule
+        Ukuran vektor   & 50.000+ (sparse)           & 100--300 (dense) \\
+        Sinonim         & Tidak dikenal               & Posisi berdekatan \\
+        Konteks         & Diabaikan                   & Tertangkap lewat training \\
+        Matematika makna & Tidak bisa                 & Raja $-$ Pria $+$ Wanita = Ratu \\
+        Cara dapat      & Manual (hitung frekuensi)  & Dilatih dari corpus besar \\
+        Contoh populer  & ---                         & Word2Vec, GloVe, FastText \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+    \vspace{0.4em}
+    \begin{tcolorbox}[colback=nyublue!10, colframe=nyublue, boxrule=0.8mm, arc=2mm, halign=center]
+        Word Embedding adalah \textbf{pondasi} hampir semua model NLP modern.\\
+        \small Selanjutnya: bagaimana embedding ini dipakai oleh RNN, LSTM, dan Transformer.
+    \end{tcolorbox}
 \end{frame}
 
 %================================================
@@ -1604,6 +2010,219 @@
         \textbf{Resource terbatas / perlu explainability} $\;\to\;$ BiLSTM + Attention.\\
         \textbf{Butuh performa terbaik / ada GPU} $\;\to\;$ DistilBERT.
     \end{exampleblock}
+\end{frame}
+
+%================================================
+% SECTION: BERT vs DISTILBERT
+%================================================
+\section{BERT vs DistilBERT}
+
+% --- B1: Apa itu BERT ---
+\begin{frame}[shrink=4]
+    \frametitle{BERT: Guru Besar Bahasa}
+    \framesubtitle{Bidirectional Encoder Representations from Transformers}
+    \small
+    \textbf{BERT} dilatih Google pada hampir seluruh Wikipedia + jutaan buku.\\[-0.1em]
+    Dua hal unik yang membuatnya revolusioner:
+
+    \vspace{0.2em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{1. Baca Dua Arah (Bidirectional)}
+            \footnotesize
+            Model sebelumnya (GPT) membaca kiri ke kanan saja.\\[0.2em]
+            BERT membaca \textbf{kiri dan kanan sekaligus}.
+            \begin{center}
+            \small\texttt{saya \underline{\hspace{0.7cm}} kopi}\\
+            \small\textcolor{nyublue}{$\leftarrow$ dan $\rightarrow$ diperhatikan}
+            \end{center}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{block}{2. Masked Language Model}
+            \footnotesize
+            Saat pre-training, BERT \textbf{menyembunyikan} 15\% kata secara acak, lalu menebaknya dari konteks kiri dan kanan sekaligus.\\[0.2em]
+            \texttt{saya [MASK] kopi} $\to$ \texttt{suka}
+        \end{block}
+    \end{columns}
+
+    \vspace{0.2em}
+    \begin{exampleblock}{Hasil}
+        \footnotesize
+        BERT memecahkan rekor di 11 tugas NLP saat dirilis (2018). Masalahnya? \textbf{110 juta parameter}, butuh GPU besar, dan lambat untuk produksi.
+    \end{exampleblock}
+\end{frame}
+
+% --- B2: Masalah BERT, lahirnya DistilBERT ---
+\begin{frame}[shrink=5]
+    \frametitle{Masalah BERT di Dunia Nyata}
+    \framesubtitle{Terlalu besar, terlalu lambat}
+    \small
+    BERT sangat canggih --- tapi ada harga yang harus dibayar:
+
+    \vspace{0.2em}
+    \begin{center}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Masalah} & \textbf{BERT-base} & \textbf{Dampak} \\
+        \midrule
+        Jumlah layer        & 12 layer Transformer & Lambat \\
+        Parameter           & 110 juta             & File 440 MB \\
+        RAM saat inference  & $\sim$1.5 GB         & Tidak bisa di HP \\
+        Waktu per prediksi  & $\sim$5 ms           & Sulit real-time \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+
+    \vspace{0.2em}
+    \begin{alertblock}{Pertanyaan}
+        Bisakah kita buat model yang \textbf{hampir secerdas BERT} tapi jauh \textbf{lebih kecil dan cepat}?
+    \end{alertblock}
+
+    \vspace{0.2em}
+    Jawabannya datang dari tim Hugging Face pada 2019:
+    \begin{center}
+        \large\textcolor{nyupurple}{\textbf{Knowledge Distillation $\to$ DistilBERT}}
+    \end{center}
+\end{frame}
+
+% --- B3: Analogi Knowledge Distillation ---
+\begin{frame}
+    \frametitle{Knowledge Distillation: Murid Belajar dari Guru}
+    \framesubtitle{Bukan meniru jawaban --- meniru cara berpikir}
+    \small
+    Bayangkan dua cara belajar:
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.47\textwidth}
+        \begin{alertblock}{Cara Biasa (Hard Label)}
+            \footnotesize
+            Guru cuma bilang:\\[0.2em]
+            \textit{``Kalimat ini = kelas \textbf{Depressed}.''}\\[0.3em]
+            Murid hanya tahu jawaban akhir --- tidak tahu \textit{kenapa}.
+        \end{alertblock}
+
+        \column{0.47\textwidth}
+        \begin{exampleblock}{Distillation (Soft Label)}
+            \footnotesize
+            Guru bilang:\\[0.2em]
+            \textit{``Ini 70\% Depressed, 20\% Anxiety, 10\% Normal.''}\\[0.3em]
+            Murid belajar dari \textbf{pola kepercayaan} guru --- jauh lebih kaya informasi.
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=nyubluedarker, fill=nyublue!10, rounded corners=3pt,
+                    minimum height=0.8cm, text width=2.5cm, align=center, font=\footnotesize},
+        sbox/.style={draw=nyupurple, fill=nyupurple!10, rounded corners=3pt,
+                    minimum height=0.8cm, text width=2.5cm, align=center, font=\footnotesize},
+        arr/.style={-{Stealth[length=5pt]}, thick}
+    ]
+        \node[box]  (bert)   {BERT\\{\tiny guru, 110M param}};
+        \node[sbox, right=1.8cm of bert] (distil) {DistilBERT\\{\tiny murid, 67M param}};
+        \draw[arr, color=nyupurple, dashed]
+            (bert) -- node[above, font=\tiny]{soft labels} (distil);
+        \node[font=\tiny, color=gray, below=5pt of bert] {sudah jadi, tidak dilatih ulang};
+        \node[font=\tiny, color=nyupurple, below=5pt of distil] {dilatih meniru BERT};
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+% --- B4: Cara kerja distilasi teknis ---
+\begin{frame}[shrink=5]
+    \frametitle{Cara Kerja Distilasi: 3 Sinyal Sekaligus}
+    \framesubtitle{DistilBERT dilatih dengan tiga sumber belajar}
+    \small
+    Saat melatih DistilBERT, loss gabungan dari \textbf{tiga sinyal}:
+
+    \vspace{0.2em}
+    \begin{enumerate}
+        \item \textbf{Distillation Loss} --- seberapa mirip distribusi probabilitas output DistilBERT dengan BERT.\\
+              \textcolor{gray}{\footnotesize Pakai \textit{temperature softmax}: output BERT ``dilunakkan'' agar perbedaan kecil antar kelas tetap terlihat.}
+
+        \vspace{0.2em}
+        \item \textbf{MLM Loss} --- DistilBERT tetap dilatih menebak kata yang disembunyikan (\textit{masked language model}) seperti BERT.
+
+        \vspace{0.2em}
+        \item \textbf{Cosine Embedding Loss} --- vektor tersembunyi DistilBERT diarahkan sedekat mungkin dengan vektor BERT.
+    \end{enumerate}
+
+    \vspace{0.2em}
+    \begin{tcolorbox}[colback=nyublue!8, colframe=nyublue, boxrule=0.7mm, arc=2mm]
+        \footnotesize
+        \textbf{Hasilnya}: DistilBERT bukan sekadar ``BERT yang dipotong'' --- ia punya \textit{pemahaman bahasa} yang hampir setara, hanya lebih kompak.
+    \end{tcolorbox}
+\end{frame}
+
+% --- B5: Perbandingan arsitektur ---
+\begin{frame}
+    \frametitle{Arsitektur: BERT vs DistilBERT}
+    \framesubtitle{Setengah layer, akurasi tetap terjaga}
+    \small
+    \begin{columns}[T]
+        \column{0.58\textwidth}
+        \footnotesize
+        \setlength{\tabcolsep}{5pt}
+        \begin{tabular}{lcc}
+            \toprule
+            \textbf{Komponen}        & \textbf{BERT-base} & \textbf{DistilBERT} \\
+            \midrule
+            Transformer layers       & 12                 & \textbf{6} \\
+            Hidden size              & 768                & 768 \\
+            Attention heads          & 12                 & 12 \\
+            Parameter                & 110 juta           & \textbf{67 juta} \\
+            Token type embeddings    & Ada                & \textbf{Dihapus} \\
+            Pooler layer             & Ada                & \textbf{Dihapus} \\
+            \midrule
+            Inference speed          & 1$\times$          & \textbf{1.6$\times$} \\
+            GLUE score               & 79.6               & \textbf{77.0} ($-3.5\%$) \\
+            \bottomrule
+        \end{tabular}
+
+        \column{0.38\textwidth}
+        \begin{exampleblock}{Intuisi}
+            \footnotesize
+            Bukan semua layer itu sama pentingnya. DistilBERT membuktikan bahwa \textbf{6 layer yang terlatih dengan benar} bisa sehebat 12 layer biasa.
+        \end{exampleblock}
+
+        \vspace{0.4em}
+        \footnotesize
+        Perubahan utama: layer 12 $\to$ 6, token type embedding \& pooler \textbf{dihapus}, hidden size \& head \textbf{dipertahankan}.
+    \end{columns}
+\end{frame}
+
+% --- B6: Ringkasan & kapan pakai masing-masing ---
+\begin{frame}[shrink=5]
+    \frametitle{Ringkasan: Pilih BERT atau DistilBERT?}
+    \framesubtitle{Tidak ada yang selalu lebih baik --- tergantung konteks}
+    \small
+    \begin{center}
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Situasi}                        & \textbf{BERT} & \textbf{DistilBERT} \\
+        \midrule
+        Butuh akurasi absolut tertinggi         & \checkmark    & \\
+        Deployment di server terbatas           &               & \checkmark \\
+        Inferensi real-time ($<$5ms)            &               & \checkmark \\
+        Fine-tuning cepat dengan RAM kecil     &               & \checkmark \\
+        Riset / benchmark akademis              & \checkmark    & \\
+        Aplikasi mobile / edge device           &               & \checkmark \\
+        \bottomrule
+    \end{tabular}
+    \end{center}
+
+    \vspace{0.35em}
+    \begin{tcolorbox}[colback=nyublue!10, colframe=nyublue, boxrule=0.8mm, arc=2mm]
+        \small
+        \textbf{Untuk workshop ini}: DistilBERT dipilih karena lebih \textbf{ramah resource}, bisa berjalan di laptop biasa, dan perbedaan akurasinya dengan BERT sangat kecil ($<4\%$) untuk tugas klasifikasi teks.
+    \end{tcolorbox}
+
+    \vspace{0.2em}
+    \footnotesize\textcolor{gray}{Ekosistem: BERT, DistilBERT, RoBERTa, DeBERTa, ALBERT, ModernBERT --- semua keluarga encoder Transformer yang bisa di-fine-tune dengan cara serupa.}
 \end{frame}
 
 \end{document}
