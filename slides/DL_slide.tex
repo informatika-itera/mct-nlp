@@ -680,4 +680,930 @@
     \end{columns}
 \end{frame}
 
+%================================================
+% SECTION 3: DARI MLP KE MODEL SEKUENSIAL
+%================================================
+\section{Dari MLP ke Model Sekuensial}
+
+% --- 3.1 Masalah MLP untuk Teks ---
+\begin{frame}
+    \frametitle{Masalah MLP untuk Teks}
+    \framesubtitle{Kenapa jaringan biasa tidak cukup?}
+    \small
+    Bayangkan kamu diminta menebak makna kalimat ini:
+    \begin{center}
+        \textit{"Saya \textbf{tidak} baik-baik saja"}
+    \end{center}
+    vs.
+    \begin{center}
+        \textit{"Saya baik-baik saja, \textbf{tidak} ada yang salah"}
+    \end{center}
+
+    \vspace{0.4em}
+    MLP melihat kedua kalimat hanya sebagai \textbf{kumpulan kata} — kata "tidak" dan "baik" ada di keduanya. Ia \tem{tidak peduli} urutan.
+
+    \vspace{0.3em}
+    \begin{alertblock}{Inti Masalah}
+        Teks adalah data \textbf{berurutan} (\textit{sequential}). Makna sebuah kata bergantung pada kata sebelumnya.
+    \end{alertblock}
+\end{frame}
+
+% --- 3.2 RNN: Ide Dasar ---
+\begin{frame}
+    \frametitle{RNN — Membaca Kata Satu per Satu}
+    \framesubtitle{Seperti kamu membaca kalimat dari kiri ke kanan}
+    \small
+    \textbf{RNN} (\textit{Recurrent Neural Network}) membaca teks \textbf{kata demi kata}, sambil menyimpan "ingatan" dari kata yang sudah dibaca.
+
+    \vspace{0.5em}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=0.5cm and 1.1cm,
+        rnn/.style={draw=nyupurple, fill=nyupurple!12, rounded corners=3pt,
+                    minimum height=0.75cm, minimum width=0.9cm, align=center, font=\footnotesize},
+        inp/.style={font=\footnotesize, color=nyubluedarker},
+        arr/.style={-{Stealth[length=4.5pt]}, thick, color=nyupurple},
+        harr/.style={-{Stealth[length=4.5pt]}, thick, color=nyuorange!80!black}
+    ]
+        \node[rnn] (r1) {RNN};
+        \node[rnn, right=1.3cm of r1] (r2) {RNN};
+        \node[rnn, right=1.3cm of r2] (r3) {RNN};
+        \node[rnn, right=1.3cm of r3] (r4) {RNN};
+
+        \node[inp, below=0.5cm of r1] (x1) {"Saya"};
+        \node[inp, below=0.5cm of r2] (x2) {"tidak"};
+        \node[inp, below=0.5cm of r3] (x3) {"baik"};
+        \node[inp, below=0.5cm of r4] (x4) {"saja"};
+
+        \draw[arr] (x1)--(r1);
+        \draw[arr] (x2)--(r2);
+        \draw[arr] (x3)--(r3);
+        \draw[arr] (x4)--(r4);
+
+        \draw[harr] (r1)--node[above,font=\tiny]{$h_1$}(r2);
+        \draw[harr] (r2)--node[above,font=\tiny]{$h_2$}(r3);
+        \draw[harr] (r3)--node[above,font=\tiny]{$h_3$}(r4);
+
+        \node[font=\tiny, color=nyuorange!80!black, above=0.3cm of r4] {output};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    $h_t$ = \textbf{hidden state} — semacam "catatan" yang diteruskan dari satu kata ke kata berikutnya.
+\end{frame}
+
+% --- 3.3 Hidden State sebagai Memori ---
+\begin{frame}
+    \frametitle{Hidden State: "Memori" RNN}
+    \framesubtitle{Informasi yang dibawa dari kata ke kata}
+    \small
+    \begin{columns}[T]
+        \column{0.52\textwidth}
+        Setiap langkah, RNN menghitung hidden state baru:
+        \[
+            h_t = \tanh(W_h \cdot h_{t-1} + W_x \cdot x_t + b)
+        \]
+        \footnotesize
+        \begin{itemize}
+            \item $h_{t-1}$ = ingatan dari kata sebelumnya
+            \item $x_t$ = kata saat ini (dalam bentuk vektor)
+            \item Hasilnya $h_t$ diteruskan ke langkah berikutnya
+        \end{itemize}
+
+        \column{0.44\textwidth}
+        \begin{exampleblock}{Analogi}
+            Bayangkan kamu membaca novel sambil memegang \textbf{catatan kecil}. Setiap halaman, kamu update catatanmu. Di akhir bab, catatanmu merangkum semua yang terjadi.
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 3.4 Masalah Vanishing Gradient ---
+\begin{frame}
+    \frametitle{Masalah RNN: "Lupa" Teks Panjang}
+    \framesubtitle{Vanishing Gradient — musuh utama RNN}
+    \small
+    RNN bekerja bagus untuk kalimat pendek. Tapi untuk teks panjang, ada masalah besar:
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        rnn/.style={draw=gray!60, fill=gray!10, rounded corners=2pt,
+                    minimum height=0.65cm, minimum width=0.75cm, font=\tiny},
+        arr/.style={-{Stealth[length=3.5pt]}, thick}
+    ]
+        \foreach \i/\col in {1/gray!60, 2/gray!50, 3/gray!40, 4/gray!30, 5/gray!20, 6/gray!10} {
+            \node[rnn, fill=\col] (r\i) at (\i*1.4-1.4, 0) {RNN};
+        }
+        \foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,5} {
+            \draw[arr, color=gray!\j0] (r\i)--(r\j);
+        }
+        \node[font=\tiny, below=3pt of r1, color=black] {kata ke-1};
+        \node[font=\tiny, below=3pt of r6, color=gray!50] {kata ke-50};
+        \draw[dashed, nyuorange!80!black, thick] (r1.north)++(0,0.3) -- ++(0,-0.9);
+        \node[font=\tiny, nyuorange!80!black, above=0.3cm of r1] {ingatan kuat};
+        \draw[dashed, gray!50, thick] (r6.north)++(0,0.3) -- ++(0,-0.9);
+        \node[font=\tiny, gray!50, above=0.3cm of r6] {ingatan pudar};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    Saat proses belajar (\textit{backpropagation}), sinyal kesalahan yang dikirim ke belakang \textbf{semakin mengecil} tiap langkah — sampai akhirnya hampir nol.\\[0.3em]
+    \footnotesize Akibatnya: RNN "lupa" kata-kata yang jauh di awal kalimat.
+\end{frame}
+
+% --- 3.5 LSTM ---
+\begin{frame}[shrink=3]
+    \frametitle{LSTM: Solusi untuk Ingatan Jangka Panjang}
+    \framesubtitle{Long Short-Term Memory}
+    \small
+    \textbf{LSTM} menambahkan mekanisme \textbf{gerbang} (\textit{gate}) — seperti filter yang memutuskan:
+    \begin{itemize}
+        \item Apa yang perlu \textbf{diingat} dari masa lalu
+        \item Apa yang boleh \textbf{dilupakan}
+        \item Apa yang perlu \textbf{dikeluarkan} sebagai output
+    \end{itemize}
+
+    \vspace{0.2em}
+    \begin{center}
+    \begin{tikzpicture}[
+        gate/.style={draw=nyupurple, fill=nyupurple!12, rounded corners=3pt,
+                     minimum height=0.65cm, minimum width=1.3cm, align=center, font=\scriptsize},
+        arr/.style={-{Stealth[length=4pt]}, thick, color=nyupurple},
+        carr/.style={-{Stealth[length=4pt]}, thick, color=nyuorange!80!black}
+    ]
+        \node[gate] (fg) {Forget\\Gate};
+        \node[gate, right=0.8cm of fg] (ig) {Input\\Gate};
+        \node[gate, right=0.8cm of ig] (og) {Output\\Gate};
+
+        % cell state line
+        \draw[carr, line width=1.2pt] (-0.8, 1.0) -- (fg.north west |- 0,1.0)
+            -- (ig.north |- 0,1.0) -- (og.north east |- 0,1.0) -- ++(0.8,0)
+            node[right, font=\tiny, color=nyuorange!80!black]{$c_t$ (memori panjang)};
+
+        \draw[arr] (fg.north) -- (fg.north |- 0,1.0);
+        \draw[arr] (ig.north) -- (ig.north |- 0,1.0);
+        \draw[arr] (og.north) -- (og.north |- 0,1.0);
+
+        \node[font=\tiny, below=3pt of fg, color=nyupurple]{Lupakan?};
+        \node[font=\tiny, below=3pt of ig, color=nyupurple]{Simpan?};
+        \node[font=\tiny, below=3pt of og, color=nyupurple]{Keluarkan?};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.1em}
+    \footnotesize
+    \begin{exampleblock}{Analogi}
+        Seperti membaca buku dengan dua catatan: \textbf{catatan panjang} (ingatan penting) dan \textbf{catatan kerja} (konteks saat ini).
+    \end{exampleblock}
+\end{frame}
+
+% --- 3.6 BiLSTM ---
+\begin{frame}
+    \frametitle{BiLSTM: Membaca Dua Arah}
+    \framesubtitle{Bidirectional LSTM}
+    \small
+    Dalam bahasa, konteks datang dari \textbf{dua arah}. Contoh:
+    \begin{center}
+        \textit{"Saya \underline{\hspace{1cm}} sekali hari ini"} \quad — kata apa yang cocok?
+    \end{center}
+    Kita butuh tahu kata sebelum \textit{dan} sesudah celah itu.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        rnn/.style={draw, rounded corners=2pt, minimum height=0.6cm,
+                    minimum width=0.85cm, align=center, font=\scriptsize},
+        arr/.style={-{Stealth[length=4pt]}, thick},
+        node distance=0.15cm and 0.9cm
+    ]
+        % Forward
+        \node[rnn, fill=nyublue!15, draw=nyubluedarker] (f1) {$\overrightarrow{h}_1$};
+        \node[rnn, fill=nyublue!15, draw=nyubluedarker, right=of f1] (f2) {$\overrightarrow{h}_2$};
+        \node[rnn, fill=nyublue!15, draw=nyubluedarker, right=of f2] (f3) {$\overrightarrow{h}_3$};
+        \node[rnn, fill=nyublue!15, draw=nyubluedarker, right=of f3] (f4) {$\overrightarrow{h}_4$};
+
+        % Backward
+        \node[rnn, fill=nyupurple!12, draw=nyupurple, below=0.5cm of f1] (b1) {$\overleftarrow{h}_1$};
+        \node[rnn, fill=nyupurple!12, draw=nyupurple, right=of b1] (b2) {$\overleftarrow{h}_2$};
+        \node[rnn, fill=nyupurple!12, draw=nyupurple, right=of b2] (b3) {$\overleftarrow{h}_3$};
+        \node[rnn, fill=nyupurple!12, draw=nyupurple, right=of b3] (b4) {$\overleftarrow{h}_4$};
+
+        % Forward arrows
+        \draw[arr, color=nyubluedarker] (f1)--(f2);
+        \draw[arr, color=nyubluedarker] (f2)--(f3);
+        \draw[arr, color=nyubluedarker] (f3)--(f4);
+        % Backward arrows
+        \draw[arr, color=nyupurple] (b4)--(b3);
+        \draw[arr, color=nyupurple] (b3)--(b2);
+        \draw[arr, color=nyupurple] (b2)--(b1);
+
+        % Word labels
+        \node[font=\tiny, above=3pt of f1]{Saya};
+        \node[font=\tiny, above=3pt of f2]{tidak};
+        \node[font=\tiny, above=3pt of f3]{baik};
+        \node[font=\tiny, above=3pt of f4]{saja};
+
+        % Labels
+        \node[font=\tiny, color=nyubluedarker, left=2pt of f1]{$\rightarrow$};
+        \node[font=\tiny, color=nyupurple, left=2pt of b1]{$\leftarrow$};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    Output tiap kata = \textbf{gabungan} hidden state maju ($\overrightarrow{h}$) dan mundur ($\overleftarrow{h}$) — konteks dari dua sisi.
+\end{frame}
+
+% --- 3.7 Word Embeddings ---
+\begin{frame}
+    \frametitle{Word Embedding: Mengubah Kata Menjadi Angka}
+    \framesubtitle{Representasi kata yang "memahami" makna}
+    \small
+    RNN tidak bisa langsung membaca kata — kita harus mengubahnya ke angka terlebih dahulu.
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.46\textwidth}
+        \textbf{One-Hot Encoding (Cara Lama)}\\[0.3em]
+        \footnotesize
+        \begin{tabular}{lcccc}
+            \toprule
+            Kata & \multicolumn{4}{c}{Vektor} \\
+            \midrule
+            "kucing" & 1 & 0 & 0 & 0 \\
+            "anjing" & 0 & 1 & 0 & 0 \\
+            "mobil"  & 0 & 0 & 1 & 0 \\
+            \bottomrule
+        \end{tabular}\\[0.4em]
+        Masalah: "kucing" dan "anjing" \textbf{sama jauhnya} dengan "mobil" — model tidak tahu keduanya sama-sama hewan.
+
+        \column{0.50\textwidth}
+        \textbf{Embedding Layer (Cara DL)}\\[0.3em]
+        \footnotesize
+        \begin{tabular}{lcc}
+            \toprule
+            Kata & dim-1 & dim-2 \\
+            \midrule
+            "kucing" & 0.82 & $-$0.11 \\
+            "anjing" & 0.79 & $-$0.08 \\
+            "mobil"  & $-$0.50 & 0.65 \\
+            \bottomrule
+        \end{tabular}\\[0.4em]
+        "kucing" dan "anjing" \textbf{berdekatan} — model belajar bahwa keduanya serupa.
+    \end{columns}
+\end{frame}
+
+% --- 3.8 Arsitektur BiLSTM yang Dipakai ---
+\begin{frame}
+    \frametitle{Arsitektur BiLSTM di Workshop Ini}
+    \framesubtitle{Gambaran model yang akan kita latih}
+    \small
+    \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=nyubluedarker, fill=nyublue!10, rounded corners=3pt,
+                    minimum height=0.72cm, text width=2.1cm, align=center, font=\footnotesize},
+        arr/.style={-{Stealth[length=5pt]}, thick, color=nyubluedarker}
+    ]
+        \node[box] (emb)  {Embedding\\Layer};
+        \node[box, right=0.7cm of emb]  (bilstm) {BiLSTM\\(2 layer)};
+        \node[box, right=0.7cm of bilstm] (drop) {Dropout};
+        \node[box, right=0.7cm of drop]  (fc)  {FC Layer};
+        \node[box, right=0.7cm of fc]    (out) {Softmax\\(7 kelas)};
+
+        \draw[arr] (emb)--(bilstm);
+        \draw[arr] (bilstm)--(drop);
+        \draw[arr] (drop)--(fc);
+        \draw[arr] (fc)--(out);
+
+        \node[font=\tiny, below=4pt of emb, color=gray]{vocab $\to$ vektor};
+        \node[font=\tiny, below=4pt of bilstm, color=gray]{konteks 2 arah};
+        \node[font=\tiny, below=4pt of drop, color=gray]{cegah overfit};
+        \node[font=\tiny, below=4pt of fc, color=gray]{gabungkan fitur};
+        \node[font=\tiny, below=4pt of out, color=gray]{probabilitas};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.4em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Ringkasan Alur}
+            \footnotesize
+            Teks $\to$ indeks $\to$ embedding\\
+            $\to$ BiLSTM 2 arah $\to$ prediksi kelas
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Ukuran Model}
+            \footnotesize
+            $\approx$7 juta parameter — lebih kecil dari BERT, cukup untuk 7 kelas.
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 3.9 Perbandingan RNN vs LSTM vs BiLSTM ---
+\begin{frame}
+    \frametitle{Rangkuman: RNN vs LSTM vs BiLSTM}
+    \framesubtitle{Evolusi arsitektur sekuensial}
+    \small
+    \begin{center}
+    {\footnotesize
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Aspek}              & \textbf{RNN}       & \textbf{LSTM}      & \textbf{BiLSTM} \\
+        \midrule
+        Baca urutan                 & \checkmark         & \checkmark         & \checkmark \\
+        Ingatan jangka panjang      & \textcolor{red}{$\times$} & \checkmark  & \checkmark \\
+        Konteks mundur (kanan$\to$kiri) & \textcolor{red}{$\times$} & \textcolor{red}{$\times$} & \checkmark \\
+        Kompleksitas                & Rendah             & Sedang             & Sedang--Tinggi \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{0.5em}
+    \begin{exampleblock}{Kesimpulan}
+        \small
+        Untuk teks yang nuansanya halus (seperti dataset mental health kita), \textbf{BiLSTM} adalah pilihan yang jauh lebih baik dari RNN biasa.
+    \end{exampleblock}
+\end{frame}
+
+%================================================
+% SECTION 4: ATTENTION MECHANISM
+%================================================
+\section{Attention Mechanism}
+
+% --- 4.1 Masalah Last Hidden State ---
+\begin{frame}
+    \frametitle{Masalah BiLSTM Murni}
+    \framesubtitle{\textit{Last hidden state} menanggung beban terlalu berat}
+    \small
+    Pada BiLSTM murni, setelah semua kata dibaca, \textbf{hanya satu vektor terakhir} yang diteruskan ke classifier.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        rnn/.style={draw=nyubluedarker, fill=nyublue!12, rounded corners=2pt,
+                    minimum height=0.6cm, minimum width=0.85cm, font=\scriptsize, align=center},
+        arr/.style={-{Stealth[length=4pt]}, thick, color=nyubluedarker},
+        cls/.style={draw=nyupurple, fill=nyupurple!15, rounded corners=2pt,
+                    minimum height=0.6cm, minimum width=1.3cm, font=\scriptsize, align=center}
+    ]
+        \node[rnn] (h1) {$h_1$};
+        \node[rnn, right=0.8cm of h1] (h2) {$h_2$};
+        \node[rnn, right=0.8cm of h2] (h3) {$h_3$};
+        \node[rnn, right=0.8cm of h3] (h4) {$h_4$};
+        \node[rnn, right=0.8cm of h4] (h5) {$h_5$};
+        \node[cls, right=1.0cm of h5] (fc) {Classifier};
+
+        \draw[arr] (h1)--(h2);
+        \draw[arr] (h2)--(h3);
+        \draw[arr] (h3)--(h4);
+        \draw[arr] (h4)--(h5);
+        \draw[arr, color=nyupurple, line width=1.2pt] (h5)--(fc);
+
+        \node[font=\tiny, below=3pt of h1, color=gray] {"i"};
+        \node[font=\tiny, below=3pt of h2, color=gray] {"felt"};
+        \node[font=\tiny, below=3pt of h3, color=gray] {"very"};
+        \node[font=\tiny, below=3pt of h4, color=gray] {"hopeless"};
+        \node[font=\tiny, below=3pt of h5, color=gray] {"yesterday"};
+
+        % fade arrows showing information loss
+        \draw[-{Stealth[length=3pt]}, gray!40, dashed] (h1.north) to[bend left=40]
+            node[above, font=\tiny, color=gray!60]{memudar} (h5.north);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    Kata \textit{"hopeless"} di posisi ke-4 sudah \textbf{terkompresi} dan bercampur saat sampai ke posisi ke-5. Informasinya bisa memudar — terutama pada kalimat yang sangat panjang.
+\end{frame}
+
+% --- 4.2 Solusi: Attention ---
+\begin{frame}
+    \frametitle{Solusi: Beri Model Kemampuan "Menyorot"}
+    \framesubtitle{Ide dasar Attention Mechanism}
+    \small
+    Daripada hanya memakai \textit{last hidden state}, bagaimana kalau model boleh \textbf{melihat semua hidden state} sekaligus dan memilih mana yang paling penting?
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        rnn/.style={draw=nyubluedarker, fill=nyublue!12, rounded corners=2pt,
+                    minimum height=0.6cm, minimum width=0.85cm, font=\scriptsize},
+        att/.style={draw=nyuorange!80!black, fill=nyuorange!15, rounded corners=3pt,
+                    minimum height=0.65cm, minimum width=2.4cm, font=\scriptsize},
+        cls/.style={draw=nyupurple, fill=nyupurple!15, rounded corners=2pt,
+                    minimum height=0.6cm, minimum width=1.3cm, font=\scriptsize},
+        arr/.style={-{Stealth[length=4pt]}, thick}
+    ]
+        \node[rnn] (h1) {$h_1$};
+        \node[rnn, right=0.8cm of h1] (h2) {$h_2$};
+        \node[rnn, right=0.8cm of h2] (h3) {$h_3$};
+        \node[rnn, right=0.8cm of h3] (h4) {$h_4$};
+        \node[rnn, right=0.8cm of h4] (h5) {$h_5$};
+
+        \node[att, below=0.85cm of h3] (attn) {Attention Layer};
+        \node[cls, right=1.0cm of attn] (fc) {Classifier};
+
+        \draw[arr, color=nyuorange!70] (h1.south) -- (attn.north west);
+        \draw[arr, color=nyuorange!70] (h2.south) -- (attn.north);
+        \draw[arr, color=nyuorange!70, line width=1.4pt] (h3.south) -- (attn.north);
+        \draw[arr, color=nyuorange!70, line width=1.8pt] (h4.south) -- (attn.north east);
+        \draw[arr, color=nyuorange!70] (h5.south) -- (attn.north east);
+
+        \draw[arr, color=nyupurple] (attn) -- (fc);
+
+        \node[font=\tiny, below=3pt of h1, color=gray] {"i"};
+        \node[font=\tiny, below=3pt of h2, color=gray] {"felt"};
+        \node[font=\tiny, below=3pt of h3, color=gray] {"very"};
+        \node[font=\tiny, below=3pt of h4, color=nyuorange!80!black] {"hopeless"};
+        \node[font=\tiny, below=3pt of h5, color=gray] {"yesterday"};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    Panah yang lebih tebal = bobot attention yang lebih besar. Kata \textit{"hopeless"} mendapat perhatian lebih dari model.
+\end{frame}
+
+% --- 4.3 Step-by-step Attention ---
+\begin{frame}
+    \frametitle{Cara Kerja Attention: Step by Step}
+    \framesubtitle{Bahdanau Attention — langkah demi langkah}
+    \small
+    \begin{enumerate}\setlength{\itemsep}{0.05em}
+        \item \textbf{BiLSTM menghasilkan hidden state} tiap kata: $h_1, h_2, \ldots, h_T$
+
+        \item \textbf{Hitung skor} — seberapa penting kata ini?
+        $\displaystyle e_t = \tanh(W \cdot h_t + b)$
+
+        \item \textbf{Normalisasi} dengan Softmax (total = 1):
+        $\displaystyle \alpha_t = \dfrac{\exp(e_t)}{\sum_{k=1}^{T} \exp(e_k)}$
+
+        \item \textbf{Buat context vector} — rata-rata tertimbang:
+        $\displaystyle c = \sum_{t=1}^{T} \alpha_t \cdot h_t$
+    \end{enumerate}
+
+    \vspace{0.2em}
+    \begin{exampleblock}{}
+        \footnotesize
+        $c$ inilah yang diteruskan ke classifier — merangkum seluruh kalimat dengan \textbf{penekanan lebih pada kata yang penting}.
+    \end{exampleblock}
+\end{frame}
+
+% --- 4.4 Contoh Nilai Alpha ---
+\begin{frame}
+    \frametitle{Contoh Nilai $\alpha$ (Bobot Attention)}
+    \framesubtitle{Apa yang "dilihat" model pada sebuah kalimat}
+    \small
+    Kalimat: \textit{"i felt very hopeless and tired yesterday"}\\[0.4em]
+    Prediksi model: \texttt{Depression} dengan bobot attention:
+
+    \vspace{0.3em}
+    \begin{center}
+    \begin{tikzpicture}[
+        w/.style={draw, rounded corners=2pt, minimum height=0.75cm, font=\scriptsize, align=center},
+        strong/.style={fill=red!30, draw=red!70!black, minimum width=1.35cm},
+        medium/.style={fill=orange!22, draw=orange!65!black, minimum width=1.1cm},
+        weak/.style={fill=gray!10, draw=gray!40, minimum width=0.9cm}
+    ]
+        \node[w, weak]   (a1) at (0,0)   {i\\[-2pt]\tiny 0.05};
+        \node[w, medium] (a2) at (1.15,0) {felt\\[-2pt]\tiny 0.12};
+        \node[w, weak]   (a3) at (2.3,0)  {very\\[-2pt]\tiny 0.08};
+        \node[w, strong] (a4) at (3.6,0)  {hope-\\[-2pt]less\\[-2pt]\tiny 0.38};
+        \node[w, medium] (a5) at (4.85,0) {and\\[-2pt]\tiny 0.09};
+        \node[w, strong] (a6) at (6.0,0)  {tired\\[-2pt]\tiny 0.24};
+        \node[w, weak]   (a7) at (7.15,0) {yester-\\[-2pt]day\\[-2pt]\tiny 0.04};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Yang Model Fokuskan}
+            \footnotesize
+            \textit{hopeless} ($\alpha=0.38$) dan \textit{tired} ($\alpha=0.24$) — kata-kata yang paling menunjukkan kondisi depresi.
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Manfaat Explainability}
+            \footnotesize
+            Kita bisa \textbf{menjelaskan} mengapa model memprediksi kelas tertentu — penting untuk aplikasi kesehatan.
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 4.5 BiLSTM vs BiLSTM+Attention ---
+\begin{frame}
+    \frametitle{BiLSTM Murni vs BiLSTM + Attention}
+    \framesubtitle{Apa bedanya secara arsitektur?}
+    \small
+    \begin{columns}[T]
+        \column{0.46\textwidth}
+        \begin{block}{BiLSTM Murni}
+            \footnotesize
+            \begin{enumerate}\setlength{\itemsep}{0pt}
+                \item Baca semua kata dua arah
+                \item Ambil \textbf{hidden state terakhir}
+                \item Masukkan ke FC + Softmax
+            \end{enumerate}
+            \vspace{0.15em}
+            \textcolor{gray}{Cepat, tapi info awal bisa memudar.}
+        \end{block}
+
+        \column{0.50\textwidth}
+        \begin{exampleblock}{BiLSTM + Attention}
+            \footnotesize
+            \begin{enumerate}\setlength{\itemsep}{0pt}
+                \item Baca semua kata dua arah
+                \item Hitung \textbf{skor tiap hidden state}
+                \item Buat \textit{context vector} $c$
+                \item Masukkan $c$ ke FC + Softmax
+            \end{enumerate}
+            \vspace{0.05em}
+            \textcolor{nyubluedarker}{Lebih akurat \textbf{dan} bisa dijelaskan.}
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.1em}
+    \begin{center}
+    {\footnotesize\renewcommand{\arraystretch}{1.1}
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Aspek} & \textbf{BiLSTM} & \textbf{BiLSTM+Att.} \\
+        \midrule
+        Teks panjang    & Cukup baik  & Lebih baik \\
+        Explainability  & \textcolor{red}{$\times$} & \checkmark \\
+        Kecepatan train & Lebih cepat & Sedikit lambat \\
+        Parameter ekstra & ---         & $W, b$ kecil \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+\end{frame}
+
+%================================================
+% SECTION 5: TRANSFER LEARNING & TRANSFORMERS
+%================================================
+\section{Transfer Learning \& Transformers}
+
+% --- 5.1 Paradigma Transfer Learning ---
+\begin{frame}
+    \frametitle{Paradigma Transfer Learning}
+    \framesubtitle{Belajar sekali, pakai berkali-kali}
+    \small
+    Bayangkan kamu sudah mahir membaca dan memahami teks bahasa Inggris.
+    Ketika guru memberi soal analisis puisi, kamu \textbf{tidak belajar membaca dari nol} lagi — kemampuan itu sudah ada.
+
+    \vspace{0.4em}
+    \textbf{Transfer Learning} di NLP bekerja persis seperti itu:
+
+    \vspace{0.2em}
+    \begin{enumerate}
+        \item \textbf{Pre-train}: model dilatih pada data raksasa (miliaran kalimat) tanpa label khusus — model belajar \textit{memahami bahasa}.
+        \item \textbf{Fine-tune}: model yang sudah "pintar" itu kita arahkan ke tugas spesifik kita — klasifikasi 7 kelas mental health — dengan data yang jauh lebih kecil.
+    \end{enumerate}
+
+    \vspace{0.3em}
+    \begin{exampleblock}{Analogi}
+        \footnotesize
+        Seperti \textbf{dokter umum} yang melanjutkan spesialisasi. Ia tidak belajar anatomi dari awal — ilmu dasarnya sudah ada, tinggal dalami bidang tertentu.
+    \end{exampleblock}
+\end{frame}
+
+% --- 5.2 Diagram Pre-train → Fine-tune ---
+\begin{frame}
+    \frametitle{Pre-train $\to$ Fine-tune: Dua Fase}
+    \framesubtitle{Cara model besar menjadi berguna untuk tugas kita}
+    \small
+    \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=nyubluedarker, fill=nyublue!10, rounded corners=3pt,
+                    minimum height=0.85cm, text width=2.4cm, align=center, font=\footnotesize},
+        box2/.style={draw=nyupurple, fill=nyupurple!10, rounded corners=3pt,
+                    minimum height=0.85cm, text width=2.4cm, align=center, font=\footnotesize},
+        arr/.style={-{Stealth[length=5pt]}, thick}
+    ]
+        \node[box]  (bigdata)  {Data Raksasa\\{\tiny Wikipedia, Books\ldots}};
+        \node[box,  right=0.8cm of bigdata]  (pretrained) {Model\\Pre-trained};
+        \node[box2, right=1.4cm of pretrained] (smalldata)  {Data Kita\\{\tiny 7-kelas, ribuan baris}};
+        \node[box2, right=0.8cm of smalldata]  (finetuned)  {Model\\Fine-tuned};
+
+        \draw[arr, color=nyubluedarker] (bigdata)   -- (pretrained);
+        \draw[arr, color=nyuorange!80!black, dashed, line width=1.2pt]
+            (pretrained) -- node[above, font=\tiny, color=nyuorange!80!black]{mulai dari sini}
+            (smalldata);
+        \draw[arr, color=nyupurple] (smalldata)  -- (finetuned);
+
+        \node[font=\tiny, color=nyubluedarker, below=5pt of bigdata]    {Fase 1};
+        \node[font=\tiny, color=nyubluedarker, below=5pt of pretrained] {Selesai \checkmark};
+        \node[font=\tiny, color=nyupurple,     below=5pt of smalldata]  {Fase 2};
+        \node[font=\tiny, color=nyupurple,     below=5pt of finetuned]  {Siap pakai};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.4em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Keunggulan}
+            \footnotesize
+            \begin{itemize}
+                \item Training kita jauh \textbf{lebih cepat}
+                \item Butuh data berlabel \textbf{lebih sedikit}
+                \item Performa biasanya \textbf{lebih baik}
+            \end{itemize}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Model Pre-trained Populer}
+            \footnotesize
+            BERT, DistilBERT, RoBERTa, GPT, T5 — semua bisa di-\textit{fine-tune} untuk tugas kita.
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 5.3 Transformer: Ide Besar ---
+\begin{frame}
+    \frametitle{Transformer: Model yang Mengubah Segalanya}
+    \framesubtitle{Lahir dari paper \textit{``Attention is All You Need''} (Vaswani et al., 2017)}
+    \small
+    RNN dan LSTM membaca kata \textbf{satu per satu} — proses berurutan dan lambat.
+
+    \vspace{0.3em}
+    Transformer hadir dengan ide revolusioner:
+    \begin{center}
+        \textcolor{nyupurple}{\large\textbf{"Bagaimana kalau semua kata dibaca \textit{sekaligus}?"}}
+    \end{center}
+
+    \vspace{0.2em}
+    Tiga komponen kunci Transformer:
+
+    \vspace{0.2em}
+    \begin{columns}[T]
+        \column{0.32\textwidth}
+        \begin{block}{\small Self-Attention}
+            \footnotesize Setiap kata bisa "melihat" semua kata lain secara langsung — tidak perlu rantai.
+        \end{block}
+
+        \column{0.32\textwidth}
+        \begin{exampleblock}{\small Positional Encoding}
+            \footnotesize Karena dibaca paralel, model perlu sinyal posisi agar tahu urutan kata.
+        \end{exampleblock}
+
+        \column{0.32\textwidth}
+        \begin{alertblock}{\small Token {[CLS]}}
+            \footnotesize Token spesial di awal kalimat yang merangkum maknanya — dipakai untuk klasifikasi.
+        \end{alertblock}
+    \end{columns}
+
+    \vspace{0.35em}
+    \footnotesize
+    \textcolor{nyubluedarker}{Dampak: Transformer menjadi fondasi BERT, GPT, T5, LLaMA, dan hampir semua model NLP terkuat saat ini.}
+\end{frame}
+
+% --- 5.4 Self-Attention ---
+\begin{frame}
+    \frametitle{Self-Attention: Setiap Kata Melihat Semua Kata}
+    \framesubtitle{Inilah kekuatan utama Transformer}
+    \small
+    Kalimat: \textit{"The \textbf{bank} by the \textbf{river} is flooded"}\\[0.3em]
+    Kata \textit{bank} perlu "tahu" bahwa ia berada di dekat \textit{river} agar model memilih makna \textbf{tepi sungai}, bukan \textbf{lembaga keuangan}.
+
+    \vspace{0.3em}
+    \begin{center}
+    \begin{tikzpicture}[
+        tok/.style={draw=nyubluedarker, fill=nyublue!12, rounded corners=2pt,
+                    minimum height=0.55cm, minimum width=0.95cm, font=\scriptsize, align=center},
+        htok/.style={draw=nyupurple, fill=nyupurple!15, rounded corners=2pt,
+                    minimum height=0.55cm, minimum width=0.95cm, font=\scriptsize, align=center},
+        arr/.style={-{Stealth[length=3.5pt]}}
+    ]
+        \node[htok] (bank)  at (0,0)   {bank};
+        \node[tok]  (by)    at (1.3,0)  {by};
+        \node[tok]  (the)   at (2.6,0)  {the};
+        \node[htok] (river) at (3.9,0)  {river};
+        \node[tok]  (is)    at (5.2,0)  {is};
+
+        \draw[arr, color=nyupurple,          line width=1.8pt]
+            (bank.north) to[bend left=45]
+            node[above, font=\tiny, color=nyupurple]{\textbf{tinggi}} (river.north);
+        \draw[arr, color=gray!60, line width=0.5pt]
+            (bank.north) to[bend left=20] node[above, font=\tiny, color=gray]{rendah} (by.north);
+        \draw[arr, color=gray!60, line width=0.5pt]
+            (bank.north) to[bend right=10] (is.north);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.15em}
+    Self-Attention menghitung skor keterkaitan menggunakan tiga vektor: \textbf{Q}uery, \textbf{K}ey, \textbf{V}alue.
+    \[
+        \text{Attention}(Q,K,V) \;=\; \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+    \]
+    \footnotesize\textcolor{gray}{Sederhananya: Q = "apa yang saya cari?", \; K = "apa yang tersedia?", \; V = "informasi yang dibagi".}
+\end{frame}
+
+% --- 5.5 Positional Encoding & [CLS] ---
+\begin{frame}
+    \frametitle{Positional Encoding \& Token {[CLS]}}
+    \framesubtitle{Dua komponen pendukung Transformer}
+    \small
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Positional Encoding}
+            \footnotesize
+            Transformer membaca semua kata \textit{paralel} — ia tidak tahu mana kata ke-1 atau ke-5.\\[0.3em]
+            Solusi: tambahkan \textbf{sinyal posisi} ke setiap embedding kata.\\[0.3em]
+            \textcolor{nyubluedarker}{"kucing makan tikus"} $\neq$ \textcolor{nyubluedarker}{"tikus makan kucing"}\\[0.2em]
+            \textcolor{gray}{\tiny Tanpa positional encoding, kedua kalimat dianggap identik!}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Token {[CLS]}}
+            \footnotesize
+            Token spesial yang disisipkan di \textbf{awal setiap kalimat}.\\[0.3em]
+            Setelah melalui semua layer Transformer, representasi \textbf{[CLS]} merangkum makna seluruh kalimat.\\[0.2em]
+            \textcolor{nyupurple}{[CLS] inilah yang diteruskan ke classifier untuk menentukan label akhir.}
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        tok/.style={draw=gray!60, fill=gray!10, rounded corners=2pt,
+                    minimum height=0.5cm, minimum width=0.85cm, font=\scriptsize, align=center},
+        cls/.style={draw=nyupurple, fill=nyupurple!18, rounded corners=2pt,
+                    minimum height=0.5cm, minimum width=0.85cm, font=\scriptsize,
+                    font=\bfseries, align=center}
+    ]
+        \node[cls] (c) at (0,0)   {[CLS]};
+        \node[tok]     at (1.1,0) {i};
+        \node[tok]     at (2.0,0) {felt};
+        \node[tok]     at (3.05,0){hope-};
+        \node[tok]     at (4.15,0){less};
+        \node[font=\tiny, color=nyupurple, below=4pt of c]{$\downarrow$ ke classifier};
+    \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+% --- 5.6 DistilBERT ---
+\begin{frame}
+    \frametitle{DistilBERT: BERT yang Lebih Ramping}
+    \framesubtitle{97\% kemampuan BERT, 40\% lebih kecil, 60\% lebih cepat}
+    \small
+    \textbf{BERT} adalah model Transformer yang dilatih Google pada dataset raksasa — hasilnya sangat kuat untuk berbagai tugas NLP.
+
+    \vspace{0.3em}
+    Masalahnya: BERT sangat besar dan lambat. \textbf{DistilBERT} hadir sebagai solusinya:
+
+    \vspace{0.3em}
+    \begin{center}
+    {\footnotesize
+    \begin{tabular}{lcc}
+        \toprule
+        \textbf{Aspek}          & \textbf{BERT-base}          & \textbf{DistilBERT} \\
+        \midrule
+        Jumlah parameter        & 110 juta                    & \textbf{67 juta} ($-$40\%) \\
+        Kecepatan inference     & 1$\times$ (acuan)           & \textbf{1.6$\times$ lebih cepat} \\
+        Akurasi (benchmark NLP) & 100\% (acuan)               & \textbf{97\%} dari BERT \\
+        Ukuran file             & $\approx$440 MB             & $\approx$\textbf{250 MB} \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{0.3em}
+    \begin{exampleblock}{Knowledge Distillation}
+        \footnotesize
+        DistilBERT dilatih dengan cara "meniru cara berpikir" BERT, bukan hanya meniru jawaban akhirnya. Teknik ini disebut \textbf{knowledge distillation} — seperti murid belajar dari \textit{proses penalaran} gurunya.
+    \end{exampleblock}
+\end{frame}
+
+% --- 5.7 Fine-tuning DistilBERT untuk 7 Kelas ---
+\begin{frame}
+    \frametitle{Fine-Tuning DistilBERT untuk 7 Kelas}
+    \framesubtitle{Freeze backbone, latih classification head}
+    \small
+    Strategi yang dipakai: \textbf{freeze backbone} + tambahkan lapisan klasifikasi baru.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        frozen/.style={draw=nyubluedarker, fill=nyublue!10, rounded corners=3pt,
+                       minimum height=0.85cm, text width=3.0cm, align=center, font=\footnotesize},
+        trainable/.style={draw=nyupurple, fill=nyupurple!12, rounded corners=3pt,
+                          minimum height=0.85cm, text width=2.0cm, align=center, font=\footnotesize},
+        outbox/.style={draw=nyuorange!80!black, fill=nyuorange!10, rounded corners=3pt,
+                    minimum height=0.85cm, text width=1.6cm, align=center, font=\footnotesize},
+        arr/.style={-{Stealth[length=5pt]}, thick}
+    ]
+        \node[frozen]    (dist) {DistilBERT\\Backbone\\{\tiny 6 Transformer layers}};
+        \node[trainable, right=0.9cm of dist] (head)  {FC Layer\\{\tiny 768 $\to$ 7}};
+        \node[outbox,     right=0.9cm of head] (soft) {Softmax\\{\tiny 7 kelas}};
+
+        \draw[arr, color=nyubluedarker] (dist) -- (head);
+        \draw[arr, color=nyupurple]     (head) -- (soft);
+
+        \node[font=\tiny, color=nyubluedarker, below=5pt of dist]
+            {\textit{dikunci} — tidak diupdate};
+        \node[font=\tiny, color=nyupurple,     below=5pt of head]
+            {\textit{dilatih} — diupdate};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Freeze Backbone}
+            \footnotesize
+            Parameter DistilBERT \textbf{dikunci} — tidak berubah. Kita hanya melatih lapisan FC yang baru ditambahkan.
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Keuntungan}
+            \footnotesize
+            \begin{itemize}
+                \item Training jauh \textbf{lebih cepat}
+                \item Tidak perlu GPU terlalu kuat
+                \item Mencegah \textit{catastrophic forgetting}
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 5.8 Perbandingan Parameter BiLSTM vs DistilBERT ---
+\begin{frame}
+    \frametitle{Perbandingan Parameter: BiLSTM vs DistilBERT}
+    \framesubtitle{Skala berbeda — implikasi berbeda}
+    \small
+    \begin{center}
+    \begin{tikzpicture}[scale=0.85]
+        % BiLSTM bar (kecil)
+        \fill[nyublue!55]      (0,0.3) rectangle (1.4, 1.1);
+        \draw[nyubluedarker, thick] (0,0.3) rectangle (1.4, 1.1);
+        \node[font=\scriptsize, color=white, align=center] at (0.7, 0.7) {$\approx$7M};
+
+        % DistilBERT bar (besar)
+        \fill[nyupurple!50]    (0,-0.9) rectangle (9.4, -0.1);
+        \draw[nyupurple, thick] (0,-0.9) rectangle (9.4, -0.1);
+        \node[font=\scriptsize, color=white] at (4.7, -0.5) {$\approx$67 juta parameter};
+
+        % labels
+        \node[font=\footnotesize, left=3pt, color=nyubluedarker] at (0, 0.7)
+            {\textbf{BiLSTM}};
+        \node[font=\footnotesize, left=3pt, color=nyupurple]     at (0,-0.5)
+            {\textbf{DistilBERT}};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.25em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{BiLSTM+Att. ($\approx$7M)}
+            \footnotesize
+            \begin{itemize}
+                \item Ringan, cepat dilatih dari nol
+                \item Cocok untuk resource terbatas
+                \item Perlu cukup data berlabel
+            \end{itemize}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{DistilBERT ($\approx$67M)}
+            \footnotesize
+            \begin{itemize}
+                \item Backbone sudah "tahu bahasa"
+                \item Butuh GPU, tapi fine-tune cepat
+                \item Umumnya performa lebih tinggi
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+\end{frame}
+
+% --- 5.9 Ringkasan Section 5 ---
+\begin{frame}
+    \frametitle{Perbandingan Final: BiLSTM vs DistilBERT}
+    \framesubtitle{Kapan pilih yang mana?}
+    \small
+    \begin{center}
+    {\footnotesize\renewcommand{\arraystretch}{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Aspek}          & \textbf{BiLSTM} & \textbf{BiLSTM+Att.}       & \textbf{DistilBERT} \\
+        \midrule
+        Parameter               & $\approx$7M     & $\approx$7M                & $\approx$67M \\
+        Perlu GPU kuat          & Tidak           & Tidak                      & Disarankan \\
+        Pakai pre-trained       & \textcolor{red}{$\times$} & \textcolor{red}{$\times$} & \checkmark \\
+        Butuh data berlabel besar & Iya           & Iya                        & Tidak harus \\
+        Explainability          & \textcolor{red}{$\times$} & \checkmark (heatmap)      & Terbatas \\
+        Akurasi pada 7 kelas    & Baik            & Lebih baik                 & Terbaik \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{0.35em}
+    \begin{exampleblock}{Panduan Memilih}
+        \footnotesize
+        \textbf{Resource terbatas / perlu explainability} $\;\to\;$ BiLSTM + Attention.\\
+        \textbf{Butuh performa terbaik / ada GPU} $\;\to\;$ DistilBERT.
+    \end{exampleblock}
+\end{frame}
+
 \end{document}
