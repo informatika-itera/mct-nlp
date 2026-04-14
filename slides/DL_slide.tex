@@ -1,0 +1,683 @@
+%================================================
+% PACKAGES AND THEMES
+%================================================
+\documentclass[t,aspectratio=169,xcolor=dvipsnames]{beamer}
+
+\usetheme{SimplePlusAIC}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, shapes.geometric, shapes.misc, fit, positioning, calc}
+\usepackage{makecell}
+\usepackage{setspace}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{ragged2e}
+\usepackage[svgnames,table]{xcolor}
+\arrayrulecolor{black}
+\setlength{\arrayrulewidth}{0.20mm}
+\renewcommand{\arraystretch}{1.35}
+
+\newcommand{\tem}[1]{\textbf{\textcolor{red}{#1}}}
+
+%================================================
+% TITLE PAGE
+%================================================
+\title[Workshop Sesi DL]{Pemrosesan Bahasa Alami}
+\subtitle{Deep Learning for NLP — From RNN to Transformers}
+\author[SD25-32202]{Martin Manullang}
+\institute[ITERA]{Institut Teknologi Sumatera \\ mctm.web.id}
+\date{\textcolor{nyublue}{2026}}
+
+%================================================
+% AT BEGIN SECTION - SECTION SEPARATOR
+%================================================
+\AtBeginSection[]{
+  \begin{frame}[plain,c]
+    \begin{center}
+      \begin{tcolorbox}[
+        colback=nyublue!10!white,
+        colframe=nyublue,
+        boxrule=1.5mm,
+        arc=3mm,
+        halign=center,
+        valign=center,
+        height=0.45\textheight,
+        width=0.85\textwidth
+      ]
+        \Huge\textbf{\textcolor{nyublue}{\insertsectionhead}}
+      \end{tcolorbox}
+    \end{center}
+  \end{frame}
+}
+
+%================================================
+% BEGIN DOCUMENT
+%================================================
+\begin{document}
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+\begin{frame}
+    \frametitle{OUTLINE}
+    \framesubtitle{Peta materi pertemuan ini}
+    \small
+    \begin{spacing}{1.15}
+        \tableofcontents
+    \end{spacing}
+\end{frame}
+
+%================================================
+% SLIDE PENDAHULUAN
+%================================================
+
+\begin{frame}
+    \frametitle{Capaian Pembelajaran}
+    \framesubtitle{Yang bisa kamu lakukan setelah sesi ini}
+    \small
+    \begin{enumerate}
+        \item Memahami mengapa \textit{Deep Learning} lebih unggul dari ML tradisional untuk teks.
+        \item Mengenal arsitektur \textbf{RNN, LSTM, dan BiLSTM} beserta konsep \textit{attention}.
+        \item Memahami cara kerja \textbf{Transformer} dan \textit{fine-tuning} model pre-trained.
+        \item Mampu melihat perbandingan performa antar model dari kode yang sudah berjalan.
+    \end{enumerate}
+    \begin{exampleblock}{Fokus Kelas Ini}
+        Penjelasan lebih banyak \textbf{menggunakan intuisi visual} daripada rumus matematika yang rumit.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mengapa Deep Learning?}
+    \framesubtitle{Keterbatasan yang membuat kita perlu naik level}
+    \small
+    Pada sesi-sesi sebelumnya kita sudah pakai \textbf{TF-IDF + SVM / PyCaret}.\\[0.4em]
+    Ternyata ada beberapa hal yang \tem{tidak bisa} dilakukan pendekatan itu:
+    \vspace{0.3em}
+    \begin{itemize}
+        \item \textbf{Tidak peduli urutan kata} — "saya \textit{tidak} suka" vs "saya suka \textit{tidak} ada masalah" dianggap mirip.
+        \item \textbf{Tidak paham konteks} — kata "bank" di kalimat "tepi sungai" vs "menabung di bank" dianggap sama.
+        \item \textbf{Dimensi fitur meledak} — setiap kata unik menjadi satu kolom; ribuan kata = ribuan kolom.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Mengapa Deep Learning?}
+    \framesubtitle{Apa yang ditawarkan Deep Learning}
+    \small
+    \textit{Deep Learning} menyelesaikan ketiga masalah tadi dengan cara:
+    \vspace{0.3em}
+    \begin{itemize}
+        \item \textbf{Belajar representasi sendiri} — model secara otomatis menemukan pola penting dari data, tanpa kita perlu rekayasa fitur manual.
+        \item \textbf{Memori urutan} — arsitektur RNN / LSTM "membaca" kata satu per satu sambil mengingat apa yang sudah dibaca.
+        \item \textbf{Konteks global} — mekanisme \textit{attention} memungkinkan model melihat seluruh kalimat sekaligus.
+    \end{itemize}
+    \begin{exampleblock}{Analogi Sederhana}
+        Kalau TF-IDF seperti \textbf{kamus kata} yang hanya menghitung frekuensi, maka DL seperti \textbf{orang yang membaca} — ia mengerti konteks dan urutan.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Disclaimer Dataset}
+    \begin{alertblock}{Peringatan Konten Sensitif}
+        Dataset yang digunakan pada sesi ini berisi teks seputar \textbf{kesehatan mental} — termasuk topik depresi, kecemasan, dan pikiran bunuh diri.
+        \vspace{0.25em}
+
+        Dataset ini diambil dari sumber publik dan digunakan \textbf{semata-mata untuk tujuan edukasi} penelitian Pemrosesan Bahasa Alami.
+        \vspace{0.25em}
+
+        Jika kamu merasa terganggu dengan konten ini, silakan sampaikan ke pengajar.
+    \end{alertblock}
+\end{frame}
+
+%================================================
+% SECTION 1: REKAP & JEMBATAN
+%================================================
+\section{Rekap \& Jembatan dari Sesi Sebelumnya}
+
+\begin{frame}
+    \frametitle{Pipeline Traditional ML}
+    \framesubtitle{Cara kerja yang sudah kita kenal}
+    \small
+    Setiap langkah dikerjakan \textbf{secara manual} oleh programmer:
+
+    \vspace{0.6em}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=0.55cm and 0.35cm,
+        box/.style={
+            draw=nyubluedarker, fill=nyublue!12,
+            rounded corners=3pt,
+            minimum height=0.75cm, text width=1.85cm,
+            align=center, font=\footnotesize
+        },
+        arr/.style={-{Stealth[length=5pt]}, thick, color=nyubluedarker}
+    ]
+        \node[box] (raw)   {Teks Mentah};
+        \node[box, right=of raw]  (prep)  {Preprocessing \\ \tiny(lowercase, stopword)};
+        \node[box, right=of prep] (tfidf) {TF-IDF \\ \tiny(matriks fitur)};
+        \node[box, right=of tfidf](model) {Classifier \\ \tiny(SVM / RF)};
+        \node[box, right=of model](pred)  {Prediksi \\ \tiny(label)};
+
+        \draw[arr] (raw)   -- (prep);
+        \draw[arr] (prep)  -- (tfidf);
+        \draw[arr] (tfidf) -- (model);
+        \draw[arr] (model) -- (pred);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.5em}
+    \begin{itemize}
+        \item \textbf{Fitur dibuat manual}: kita yang memilih cara merepresentasikan teks (TF-IDF, BoW).
+        \item \textbf{Model hanya belajar dari fitur tersebut} — bukan dari teks aslinya.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Pipeline Deep Learning}
+    \framesubtitle{Cara kerja yang akan kita pelajari hari ini}
+    \small
+    Model \textbf{belajar sendiri} cara terbaik merepresentasikan teks:
+
+    \vspace{0.6em}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=0.5cm and 0.3cm,
+        box/.style={
+            draw=nyupurple, fill=nyupurple!10,
+            rounded corners=3pt,
+            minimum height=0.75cm, text width=1.85cm,
+            align=center, font=\footnotesize
+        },
+        arr/.style={-{Stealth[length=5pt]}, thick, color=nyupurple}
+    ]
+        \node[box] (raw)   {Teks Mentah};
+        \node[box, right=of raw]  (tok)   {Tokenisasi \\ \tiny(angka indeks)};
+        \node[box, right=of tok]  (emb)   {Embedding \\ \tiny(vektor makna)};
+        \node[box, right=of emb]  (nn)    {Neural Net \\ \tiny(RNN/LSTM/BERT)};
+        \node[box, right=of nn]   (pred)  {Prediksi \\ \tiny(label)};
+
+        \draw[arr] (raw)  -- (tok);
+        \draw[arr] (tok)  -- (emb);
+        \draw[arr] (emb)  -- (nn);
+        \draw[arr] (nn)   -- (pred);
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.5em}
+    \begin{itemize}
+        \item \textbf{Embedding} menggantikan TF-IDF — representasi kata \textit{dipelajari} oleh model.
+        \item \textbf{Neural Network} sekaligus menjadi ekstraktor fitur \textit{dan} klasifier.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Perbandingan Pipeline: ML vs.\ DL}
+    \framesubtitle{Di mana letak perbedaan utamanya?}
+    \small
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Traditional ML}
+            \begin{itemize}
+                \item Fitur \textbf{dibuat manual} (TF-IDF)
+                \item Tidak peduli \textbf{urutan kata}
+                \item Interpretasi lebih \textbf{mudah}
+                \item Butuh \textbf{data lebih sedikit}
+                \item Training \textbf{cepat}
+            \end{itemize}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Deep Learning}
+            \begin{itemize}
+                \item Fitur \textbf{dipelajari otomatis}
+                \item Memahami \textbf{urutan \& konteks}
+                \item Model lebih \textbf{kompleks}
+                \item Butuh \textbf{data lebih banyak}
+                \item Training \textbf{lebih lama}
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.6em}
+    \begin{center}
+        \small
+        \textcolor{nyubluedarker}{%
+            $\Rightarrow$ Tidak ada yang selalu lebih baik — pilihan tergantung data, waktu, dan kebutuhan.%
+        }
+    \end{center}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Dari Fitur Manual ke Representasi Terpelajar}
+    \framesubtitle{Lompatan konseptual terbesar dalam Deep Learning}
+    \small
+    \begin{columns}[T]
+        \column{0.46\textwidth}
+        \textbf{TF-IDF (Fitur Manual)}\\[0.3em]
+        Setiap kata menjadi satu kolom angka.\\[0.3em]
+        \begin{center}
+        \begin{tabular}{lcc}
+            \toprule
+            Kata & dok.1 & dok.2 \\
+            \midrule
+            \texttt{sedih}  & 0.42 & 0.00 \\
+            \texttt{cemas}  & 0.00 & 0.55 \\
+            \texttt{senang} & 0.10 & 0.33 \\
+            \bottomrule
+        \end{tabular}
+        \end{center}
+        \footnotesize Kata yang mirip maknanya \textbf{tidak} saling terkait.
+
+        \column{0.50\textwidth}
+        \textbf{Word Embedding (Terpelajar)}\\[0.3em]
+        Setiap kata menjadi \textbf{vektor kontinu} berdimensi kecil.\\[0.3em]
+        \begin{center}
+        \begin{tabular}{lcc}
+            \toprule
+            Kata & dim-1 & dim-2 \\
+            \midrule
+            \texttt{sedih}  & $-$0.8 & $+$0.3 \\
+            \texttt{cemas}  & $-$0.7 & $+$0.4 \\
+            \texttt{senang} & $+$0.9 & $-$0.2 \\
+            \bottomrule
+        \end{tabular}
+        \end{center}
+        \footnotesize \texttt{sedih} dan \texttt{cemas} \textbf{berdekatan} di ruang vektor karena maknanya mirip.
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Dataset: Dari Sesi 1 ke Sesi Ini}
+    \framesubtitle{Mengapa kita ganti dataset?}
+    \small
+    \begin{columns}[T]
+        \column{0.46\textwidth}
+        \begin{block}{Sesi 1 — Indonesian Chat}
+            \begin{itemize}
+                \item Bahasa Indonesia
+                \item 2 kelas: \textit{toxic} vs \textit{non-toxic}
+                \item Klasifikasi sederhana
+                \item Cocok untuk ML tradisional
+            \end{itemize}
+        \end{block}
+
+        \column{0.50\textwidth}
+        \begin{exampleblock}{Sesi Ini — Mental Health Sentiment}
+            \begin{itemize}
+                \item Bahasa Inggris
+                \item \textbf{7 kelas} emosi/kondisi mental
+                \item Nuansa makna sangat halus
+                \item Membutuhkan pemahaman \textbf{konteks}
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.6em}
+    Dataset dengan 7 kelas yang mirip maknanya menjadi \textbf{alasan kuat} mengapa kita perlu metode yang lebih canggih dari TF-IDF.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Sekilas Dataset: Mental Health Sentiment}
+    \framesubtitle{7 Kelas Label yang Akan Kita Prediksi}
+    \footnotesize
+    {\renewcommand{\arraystretch}{1.15}
+    \begin{center}
+    \begin{tabular}{clp{5.8cm}}
+        \toprule
+        \textbf{\#} & \textbf{Label} & \textbf{Deskripsi Singkat} \\
+        \midrule
+        1 & \texttt{Normal}              & Teks tanpa indikasi kondisi mental tertentu \\
+        2 & \texttt{Depression}          & Ekspresi rasa sedih, putus asa, tidak berdaya \\
+        3 & \texttt{Suicidal}            & Pikiran atau niatan menyakiti diri \\
+        4 & \texttt{Anxiety}             & Kekhawatiran berlebih, rasa takut, panik \\
+        5 & \texttt{Bipolar}             & Perubahan suasana hati ekstrem (senang$\leftrightarrow$sedih) \\
+        6 & \texttt{Stress}              & Tekanan hidup, beban pikiran \\
+        7 & \texttt{Personality Disorder}& Pola pikir atau perilaku yang tidak biasa \\
+        \bottomrule
+    \end{tabular}
+    \end{center}}
+    \textcolor{nyuorange}{\textbf{Tantangan:}} Banyak kelas yang sulit dibedakan — misalnya \texttt{Depression} vs \texttt{Suicidal}. Inilah yang membuat tugasnya menarik!
+\end{frame}
+
+%================================================
+% SECTION 2: DASAR-DASAR DEEP LEARNING
+%================================================
+\section{Dasar-Dasar Deep Learning}
+
+% --- 2.1 Neuron Buatan ---
+\begin{frame}
+    \frametitle{Neuron: Unit Terkecil Deep Learning}
+    \framesubtitle{Meniru cara kerja sel saraf di otak}
+    \small
+    Bayangkan neuron seperti \textbf{saklar cerdas}: ia menerima beberapa sinyal,
+    menimbang-nimbangnya, lalu memutuskan apakah harus "menyala" atau tidak.
+
+    \vspace{0.3em}
+    \begin{center}
+    \begin{tikzpicture}[
+        node distance=0.4cm and 1.1cm,
+        inp/.style={circle, draw=nyubluedarker, fill=nyublue!15, minimum size=0.7cm, font=\footnotesize},
+        neu/.style={circle, draw=nyupurple, fill=nyupurple!15, minimum size=1cm, font=\footnotesize, align=center},
+        outnd/.style={circle, draw=nyuorange!80!black, fill=nyuorange!15, minimum size=0.7cm, font=\footnotesize},
+        arr/.style={-{Stealth[length=4.5pt]}, thick}
+    ]
+        \node[inp] (x1) {$x_1$};
+        \node[inp, below=of x1] (x2) {$x_2$};
+        \node[inp, below=of x2] (x3) {$x_3$};
+
+        \node[neu, right=1.4cm of x2] (n) {$\Sigma$\\+\\$f$};
+
+        \node[outnd, right=1.4cm of n] (y) {$y$};
+
+        \draw[arr, color=nyubluedarker] (x1) -- node[above, font=\tiny, sloped]{$w_1$} (n);
+        \draw[arr, color=nyubluedarker] (x2) -- node[above, font=\tiny]{$w_2$} (n);
+        \draw[arr, color=nyubluedarker] (x3) -- node[above, font=\tiny, sloped]{$w_3$} (n);
+        \draw[arr, color=nyupurple] (n) -- (y);
+
+        % bias annotation
+        \node[above=0.15cm of n, font=\tiny, color=nyupurple] {$+\,b$};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    \begin{itemize}
+        \item $x_1, x_2, x_3$ = \textbf{input}, $\;$ $w_1, w_2, w_3$ = \textbf{weight} (bobot kepentingan)
+        \item $b$ = \textbf{bias} (pergeseran ambang), $\;$ $f$ = \textbf{fungsi aktivasi}
+        \item Rumus: $y = f\bigl(w_1 x_1 + w_2 x_2 + w_3 x_3 + b\bigr)$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Weight \& Bias: Parameter yang Dipelajari}
+    \framesubtitle{Model belajar = model menyetel angka-angka ini}
+    \footnotesize
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \begin{block}{Weight ($w$)}
+            \begin{itemize}
+                \item Menentukan \textbf{seberapa besar pengaruh} suatu input
+                \item $w$ besar $\rightarrow$ sangat berpengaruh
+                \item $w$ negatif $\rightarrow$ bersifat "menghambat"
+            \end{itemize}
+        \end{block}
+
+        \column{0.48\textwidth}
+        \begin{exampleblock}{Bias ($b$)}
+            \begin{itemize}
+                \item Menggeser titik keputusan neuron
+                \item Neuron bisa aktif meski semua input = 0
+                \item Seperti $b$ dalam $y = mx + b$
+            \end{itemize}
+        \end{exampleblock}
+    \end{columns}
+
+    \vspace{0.3em}
+    \begin{alertblock}{Inisialisasi Weight}
+        Dimulai dari nilai acak kecil. Metode umum: \textbf{Xavier} atau \textbf{He initialization}. Nilai disesuaikan bertahap selama training.
+    \end{alertblock}
+\end{frame}
+
+% --- 2.2 Fungsi Aktivasi ---
+\begin{frame}
+    \frametitle{Fungsi Aktivasi}
+    \framesubtitle{Memberi kemampuan "berpikir non-linear" pada neuron}
+    \small
+    Tanpa fungsi aktivasi, seluruh jaringan hanya melakukan operasi linear.
+
+    \vspace{0.2em}
+    \begin{center}
+    {\footnotesize
+    \begin{tabular}{llp{5.2cm}}
+        \toprule
+        \textbf{Fungsi} & \textbf{Rentang Output} & \textbf{Kapan digunakan} \\
+        \midrule
+        \textbf{ReLU}    & $[0, \infty)$  & Hidden layer — paling umum, komputasi cepat \\
+        \textbf{Sigmoid} & $(0, 1)$       & Output layer klasifikasi \textit{biner} \\
+        \textbf{Tanh}    & $(-1, 1)$      & Hidden layer RNN / LSTM — mengatasi batasan Sigmoid \\
+        \textbf{Softmax} & $(0, 1)$, jumlah = 1 & Output layer klasifikasi \textit{multikelas} \\
+        \bottomrule
+    \end{tabular}}
+    \end{center}
+
+    \vspace{0.15em}
+    \begin{exampleblock}{Analogi ReLU}
+        ReLU ($\max(0, x)$) seperti lampu yang hanya menyala saat ada listrik positif — nilai negatif $\rightarrow$ tetap 0.
+    \end{exampleblock}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Grafik Fungsi Aktivasi}
+    \framesubtitle{Visualisasi singkat bentuk masing-masing fungsi}
+    \small
+    \begin{center}
+    \begin{tikzpicture}[scale=0.78]
+        % ReLU
+        \begin{scope}[xshift=0cm]
+            \draw[->] (-1.2,0)--(1.5,0) node[right,font=\tiny]{$x$};
+            \draw[->] (0,-0.3)--(0,1.5) node[above,font=\tiny]{$y$};
+            \draw[thick, color=nyubluedarker] (-1.2,0)--(0,0)--(1.2,1.2);
+            \node[font=\scriptsize, below=2pt] at (0.15,-0.3) {\textbf{ReLU}};
+        \end{scope}
+        % Sigmoid
+        \begin{scope}[xshift=3.5cm]
+            \draw[->] (-1.5,0)--(1.5,0) node[right,font=\tiny]{$x$};
+            \draw[->] (0,-0.1)--(0,1.3) node[above,font=\tiny]{$y$};
+            \draw[thick, color=nyupurple, domain=-1.4:1.4, samples=40]
+                plot (\x, {1/(1+exp(-3*\x))});
+            \node[font=\scriptsize, below=2pt] at (0.15,-0.3) {\textbf{Sigmoid}};
+        \end{scope}
+        % Tanh
+        \begin{scope}[xshift=7cm]
+            \draw[->] (-1.5,0)--(1.5,0) node[right,font=\tiny]{$x$};
+            \draw[->] (0,-1.3)--(0,1.3) node[above,font=\tiny]{$y$};
+            \draw[thick, color=nyuorange!80!black, domain=-1.4:1.4, samples=40]
+                plot (\x, {tanh(2.5*\x)});
+            \node[font=\scriptsize, below=2pt] at (0.15,-1.5) {\textbf{Tanh}};
+        \end{scope}
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.2em}
+    \footnotesize
+    \textbf{Softmax} tidak digambar di sini karena ia bekerja pada \textit{vektor} (bukan satu angka) — mengubah sekumpulan skor menjadi distribusi probabilitas yang totalnya = 1.
+\end{frame}
+
+% --- 2.3 Layer ---
+\begin{frame}
+    \frametitle{Layer: Menyusun Neuron Menjadi Jaringan}
+    \framesubtitle{Konsep \textit{depth} dalam Deep Learning}
+    \small
+    \begin{center}
+    \begin{tikzpicture}[scale=0.72,
+        node distance=0.3cm and 1.6cm,
+        nd/.style={circle, draw, minimum size=0.45cm, font=\tiny},
+        inp/.style={nd, draw=nyubluedarker, fill=nyublue!15},
+        hid/.style={nd, draw=nyupurple, fill=nyupurple!12},
+        outnd/.style={nd, draw=nyuorange!80!black, fill=nyuorange!15},
+        arr/.style={-{Stealth[length=3.5pt]}, gray, thin}
+    ]
+        % Input layer
+        \foreach \i in {1,...,3} {
+            \node[inp] (i\i) at (0, -\i*0.65) {};
+        }
+        % Hidden layer 1
+        \foreach \i in {1,...,4} {
+            \node[hid] (h1\i) at (2, -\i*0.55+0.1) {};
+        }
+        % Hidden layer 2
+        \foreach \i in {1,...,4} {
+            \node[hid] (h2\i) at (4, -\i*0.55+0.1) {};
+        }
+        % Output layer
+        \foreach \i in {1,...,2} {
+            \node[outnd] (o\i) at (6, -\i*0.65) {};
+        }
+        % Connections
+        \foreach \i in {1,...,3} {
+            \foreach \j in {1,...,4} { \draw[arr] (i\i) -- (h1\j); }
+        }
+        \foreach \i in {1,...,4} {
+            \foreach \j in {1,...,4} { \draw[arr] (h1\i) -- (h2\j); }
+        }
+        \foreach \i in {1,...,4} {
+            \foreach \j in {1,...,2} { \draw[arr] (h2\i) -- (o\j); }
+        }
+        % Labels
+        \node[font=\tiny, color=nyubluedarker, below=2pt] at (0,-2.2) {\textbf{Input}};
+        \node[font=\tiny, color=nyupurple, below=2pt]     at (2,-2.3) {\textbf{Hidden 1}};
+        \node[font=\tiny, color=nyupurple, below=2pt]     at (4,-2.3) {\textbf{Hidden 2}};
+        \node[font=\tiny, color=nyuorange!80!black, below=2pt] at (6,-1.5) {\textbf{Output}};
+    \end{tikzpicture}
+    \end{center}
+
+    \footnotesize
+    \begin{itemize}
+        \item \textbf{Input layer}: menerima data mentah (teks yang sudah di-encode)
+        \item \textbf{Hidden layer}: mengekstrak pola — makin banyak layer, makin \textit{dalam}
+        \item \textbf{Output layer}: menghasilkan prediksi (7 kelas $\rightarrow$ 7 neuron output)
+    \end{itemize}
+\end{frame}
+
+% --- 2.4 Loss Function ---
+\begin{frame}
+    \frametitle{Loss Function: Mengukur Seberapa Salah Model}
+    \framesubtitle{Sinyal yang memberi tahu model "kamu masih keliru"}
+    \small
+    \textbf{Loss function} mengukur selisih prediksi model vs.~jawaban benar.
+    Makin kecil \textit{loss}, makin bagus.
+
+    \begin{exampleblock}{Cross-Entropy Loss — Klasifikasi Multikelas}
+        \[
+            \mathcal{L} = -\sum_{c=1}^{C} y_c \cdot \log(\hat{p}_c)
+        \]
+        \footnotesize
+        \begin{itemize}
+            \item $y_c = 1$ jika kelas $c$ benar, 0 jika tidak
+            \item $\hat{p}_c$ = probabilitas prediksi untuk kelas $c$ (output Softmax)
+        \end{itemize}
+    \end{exampleblock}
+
+    \vspace{0.15em}
+    \begin{alertblock}{Contoh}
+        \footnotesize Jawaban: \texttt{Anxiety}. Prediksi \texttt{Anxiety} 90\% $\rightarrow$ loss kecil. Prediksi \texttt{Normal} 90\% $\rightarrow$ loss besar.
+    \end{alertblock}
+\end{frame}
+
+% --- 2.5 Feedforward / MLP ---
+\begin{frame}
+    \frametitle{Feedforward Network (MLP)}
+    \framesubtitle{Neural network paling sederhana — data mengalir satu arah}
+    \small
+    \textbf{MLP} (\textit{Multi-Layer Perceptron}) adalah jaringan saraf di mana data bergerak \textbf{hanya dari kiri ke kanan} — tidak ada putaran balik.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[
+        box/.style={draw=nyubluedarker, fill=nyublue!10, rounded corners=3pt,
+                    minimum height=0.8cm, text width=2cm, align=center, font=\footnotesize},
+        arr/.style={-{Stealth[length=5pt]}, thick, color=nyubluedarker}
+    ]
+        \node[box] (inp)  {Input\\(teks angka)};
+        \node[box, right=0.8cm of inp]  (h1) {Hidden\\Layer 1};
+        \node[box, right=0.8cm of h1]   (h2) {Hidden\\Layer 2};
+        \node[box, right=0.8cm of h2]   (out){Output\\(7 kelas)};
+
+        \draw[arr] (inp) -- (h1);
+        \draw[arr] (h1)  -- (h2);
+        \draw[arr] (h2)  -- (out);
+
+        % annotations
+        \node[font=\tiny, above=3pt of h1, color=nyupurple]{ReLU};
+        \node[font=\tiny, above=3pt of h2, color=nyupurple]{ReLU};
+        \node[font=\tiny, above=3pt of out, color=nyuorange!80!black]{Softmax};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.3em}
+    \begin{columns}[T]
+        \column{0.48\textwidth}
+        \textbf{Kelebihan MLP:}
+        \begin{itemize}
+            \item Sederhana dan cepat dilatih
+            \item Cocok untuk data tabular
+        \end{itemize}
+
+        \column{0.48\textwidth}
+        \textbf{Kekurangan untuk Teks:}
+        \begin{itemize}
+            \item Tidak mempertimbangkan \textbf{urutan kata}
+            \item Inilah yang nanti diselesaikan RNN
+        \end{itemize}
+    \end{columns}
+\end{frame}
+
+% --- 2.6 Overfitting & Regularisasi ---
+\begin{frame}
+    \frametitle{Overfitting: Model Terlalu "Hafal"}
+    \framesubtitle{Masalah klasik yang sering muncul saat melatih model}
+    \small
+    \textbf{Overfitting} terjadi ketika model terlalu fokus menghafal data latih,
+    sehingga performa di data baru (data uji) justru buruk.
+
+    \vspace{0.4em}
+    \begin{center}
+    \begin{tikzpicture}[scale=0.78]
+        % axes
+        \draw[->] (0,0) -- (5.5,0) node[right,font=\footnotesize]{Epoch};
+        \draw[->] (0,0) -- (0,2.8) node[above,font=\footnotesize]{Loss};
+
+        % train loss (goes down smoothly)
+        \draw[thick, color=nyubluedarker, domain=0.3:5, samples=50]
+            plot (\x, {2.2*exp(-0.7*\x)+0.15});
+        \node[font=\tiny, color=nyubluedarker] at (4.5,0.4) {Train Loss};
+
+        % val loss (goes down then up)
+        \draw[thick, color=nyuorange!80!black, domain=0.3:5, samples=50]
+            plot (\x, {2.2*exp(-0.7*\x)+0.15 + 0.5*max(0,\x-2.5)^1.2});
+        \node[font=\tiny, color=nyuorange!80!black] at (4.2,2.0) {Val Loss};
+
+        % overfitting marker
+        \draw[dashed, gray] (2.5,0) -- (2.5,2.5);
+        \node[font=\tiny, gray, above] at (2.5,2.5) {mulai \textit{overfit}};
+    \end{tikzpicture}
+    \end{center}
+
+    \vspace{0.1em}
+    \footnotesize Saat \textit{val loss} mulai naik sementara \textit{train loss} terus turun, itulah tanda overfitting.
+\end{frame}
+
+\begin{frame}
+    \frametitle{Regularisasi: Cara Mencegah Overfitting}
+    \framesubtitle{Tiga teknik yang paling sering digunakan}
+    \small
+    \begin{columns}[T]
+        \column{0.32\textwidth}
+        \begin{block}{Dropout}
+            Saat training, sebagian neuron \textbf{dimatikan secara acak} di setiap iterasi.\\[0.3em]
+            Memaksa model tidak bergantung pada neuron tertentu saja.\\[0.3em]
+            \footnotesize Contoh: \texttt{Dropout(0.3)} $\rightarrow$ 30\% neuron dimatikan tiap langkah.
+        \end{block}
+
+        \column{0.32\textwidth}
+        \begin{exampleblock}{L2 Regularization}
+            Menambahkan \textbf{penalti} pada nilai weight yang terlalu besar ke dalam loss function.\\[0.3em]
+            Weight besar $\rightarrow$ model mengandalkan fitur tertentu secara berlebihan.\\[0.3em]
+            \footnotesize Disebut juga \textit{weight decay}.
+        \end{exampleblock}
+
+        \column{0.32\textwidth}
+        \begin{alertblock}{Early Stopping}
+            Hentikan training \textbf{saat val loss mulai naik}, bukan saat mencapai epoch maksimum.\\[0.3em]
+            \footnotesize Parameter: \texttt{patience=3} $\rightarrow$ training berhenti jika val loss tidak membaik selama 3 epoch berturut-turut.
+        \end{alertblock}
+    \end{columns}
+\end{frame}
+
+\end{document}
