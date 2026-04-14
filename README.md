@@ -18,10 +18,12 @@ Repositori ini berisi materi pembelajaran, *slide* presentasi, dan *source code*
 
 ## 📅 Sesi Workshop & Jadwal Perkuliahan
 
-| Pertemuan Kuliah | Sesi Workshop | Topik Topik Pembelajaran | Materi Slide | *Source Code* | Kredit Dataset |
-|:----:|:----:|:---:|:---:|:---:|:---|
-| **Pertemuan 6 & 7** | **Sesi 1** | **NLP with Machine Learning** | [Slide Sesi 1](slides/sesi1_slide.pdf) | [`module_ML`](module_ML) | [Indonesian Chat Dataset (Kaggle)](https://www.kaggle.com/datasets/jprestiliano/indonesian-chat-dataset) |
-| **Pertemuan 9 & 10** | **Sesi 2** | **NLP with Deep Learning** | *TBA* | *TBA* | *TBA* |
+| Sesi | Topik Pembelajaran | Materi Slide | *Source Code* | Kredit Dataset |
+|:----:|:---:|:---:|:---:|:---|
+| **Sesi 1** | **NLP with Machine Learning** (Indonesian Chat) | [Slide Sesi 1 & 2](slides/sesi1_slide.pdf) | [`module_ML`](module_ML) | [Indonesian Chat Dataset (Kaggle)](https://www.kaggle.com/datasets/jprestiliano/indonesian-chat-dataset) |
+| **Sesi 2** | **NLP with Machine Learning** (IMDB Sentiment) & **NLP with NGBoost** | [Slide Sesi 1 & 2](slides/sesi1_slide.pdf) | [`module_ML2`](module_ML2), [`module_NGBoost`](module_NGBoost) | [IMDB 50K Movie Reviews (Kaggle)](https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews) |
+| **Sesi 3** | **NLP with Deep Learning** (Mental Health Sentiment) | *TBA* | [`module_DL`](module_DL) | [Sentiment Analysis for Mental Health (Kaggle)](https://www.kaggle.com/datasets/suchintikasarkar/sentiment-analysis-for-mental-health) |
+| **Sesi 4** | *TBA* | *TBA* | *TBA* | *TBA* |
 
 ---
 
