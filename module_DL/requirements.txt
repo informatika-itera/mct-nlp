@@ -1,0 +1,12 @@
+torch
+transformers
+kagglehub
+opendatasets
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+ipykernel
+ipywidgets
+gradio
