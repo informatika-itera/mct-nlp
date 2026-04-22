@@ -1,0 +1,77 @@
+_wandb:
+    value:
+        cli_version: 0.26.0
+        e:
+            rsnx5s9pc2wcd920soo4epeuk440v9dm:
+                codePath: module_DL_minimal/train.py
+                codePathLocal: train.py
+                cpu_count: 6
+                cpu_count_logical: 12
+                cudaVersion: "13.1"
+                disk:
+                    /:
+                        total: "2013991550976"
+                        used: "456695738368"
+                email: mctosima@gmail.com
+                executable: /home/user/Developer/mct-mlp/.venv/bin/python
+                git:
+                    commit: 71c4aab0a24be4c542c2f76383474e4a0dd59e54
+                    remote: https://github.com/informatika-itera/mct-mlp.git
+                gpu: NVIDIA GeForce RTX 5070
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Blackwell
+                      cudaCores: 6144
+                      memoryTotal: "12820938752"
+                      name: NVIDIA GeForce RTX 5070
+                      uuid: GPU-d7832b1d-717c-5028-2f28-1a57bca7d134
+                host: user-B550M-Pro-SE
+                memory:
+                    total: "33573924864"
+                os: Linux-6.17.0-20-generic-x86_64-with-glibc2.39
+                program: /home/user/Developer/mct-mlp/module_DL_minimal/train.py
+                python: CPython 3.10.19
+                root: /home/user/Developer/mct-mlp/module_DL_minimal
+                startedAt: "2026-04-22T06:57:17.071768Z"
+                writerId: rsnx5s9pc2wcd920soo4epeuk440v9dm
+        m: []
+        python_version: 3.10.19
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 53
+            "2":
+                - 1
+                - 5
+                - 11
+                - 49
+                - 53
+            "3":
+                - 2
+                - 16
+            "4": 3.10.19
+            "5": 0.26.0
+            "6": 5.5.4
+            "12": 0.26.0
+            "13": linux-x86_64
+batch_size:
+    value: 64
+device:
+    value: cuda
+epochs:
+    value: 10
+lr:
+    value: 0.01
+max_len:
+    value: 128
+model:
+    value: distilbert-base-uncased
+optimizer:
+    value: adamw
+scheduler:
+    value: linear
+weight_decay:
+    value: 0.01
