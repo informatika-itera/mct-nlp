@@ -24,5 +24,6 @@ slides/template_beamer
 
 # Reference web (local only)
 reference_web/
-uts.md
-jawaban_rubrik_uts.md
+
+# File internal (grading, data mahasiswa, soal ujian, dll)
+_internal/
